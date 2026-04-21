@@ -202,6 +202,7 @@ def generate_index(entries: list[dict]) -> None:
 def main() -> None:
     SOURCE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
+    (OUTPUT_DIR / ".nojekyll").write_text("", encoding="utf-8")
     OUTPUT_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
     if SOURCE_STYLE.exists():
@@ -231,6 +232,7 @@ def main() -> None:
     for entry in entries:
         print(f"  {entry['source_name']} -> docs/{entry['output_name']}")
     print("  docs/index.html")
+    print("  docs/.nojekyll")
 
 
 if __name__ == "__main__":
