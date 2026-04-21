@@ -11,9 +11,8 @@ import unicodedata
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DIR = REPO_ROOT / "raw-html"
 OUTPUT_DIR = REPO_ROOT / "docs"
-SOURCE_STYLE = REPO_ROOT / "assets" / "style.css"
+SOURCE_ASSETS_DIR = REPO_ROOT / "assets"
 OUTPUT_ASSETS_DIR = OUTPUT_DIR / "assets"
-OUTPUT_STYLE = OUTPUT_ASSETS_DIR / "style.css"
 
 GENERATED_MARKER = "<!-- generated-by: tools/process_html.py -->"
 
@@ -119,7 +118,6 @@ def remove_empty_wrappers(html_text: str) -> str:
             html_text,
             flags=re.IGNORECASE | re.DOTALL,
         )
-
         html_text = re.sub(
             r"<div>\s*(?:<div>\s*</div>\s*|<span[^>]*>\s*</span>\s*)+</div>",
             "",
@@ -262,12 +260,6 @@ def strip_evernote_heading_controls(html_text: str) -> str:
 
 
 def strip_evernote_generated_toc(html_text: str) -> str:
-    """
-    Remove Evernote-generated TOC blocks.
-
-    Only runs on Evernote exports.
-    Primary signal is data-testid="tableofcontents".
-    """
     if not is_evernote_export(html_text):
         return html_text
 
@@ -302,25 +294,43 @@ def cleanup_dangling_toc_wrappers(html_text: str) -> str:
     return html_text
 
 
-def ensure_relative_stylesheet(html_text: str, depth: int) -> str:
-    href = "../" * depth + "assets/style.css"
-    if href in html_text:
+def build_head_assets(prefix: str) -> str:
+    return "\n".join(
+        [
+            f'    <link rel="stylesheet" href="{prefix}assets/style.css">',
+            f'    <link rel="icon" href="{prefix}assets/favicon.svg" type="image/svg+xml">',
+            f'    <link rel="manifest" href="{prefix}assets/site.webmanifest">',
+            '    <meta name="theme-color" content="#111827">',
+        ]
+    )
+
+
+def ensure_head_assets(html_text: str, depth: int) -> str:
+    prefix = "../" * depth
+
+    required_markers = [
+        f'{prefix}assets/style.css',
+        f'{prefix}assets/favicon.svg',
+        f'{prefix}assets/site.webmanifest',
+    ]
+
+    if all(marker in html_text for marker in required_markers):
         return html_text
 
-    stylesheet_tag = f'    <link rel="stylesheet" href="{href}">'
+    head_assets = build_head_assets(prefix)
 
     head_match = re.search(r"<head[^>]*>", html_text, flags=re.IGNORECASE)
     if head_match:
         insert_at = head_match.end()
-        return html_text[:insert_at] + "\n" + stylesheet_tag + html_text[insert_at:]
+        return html_text[:insert_at] + "\n" + head_assets + html_text[insert_at:]
 
     html_match = re.search(r"<html[^>]*>", html_text, flags=re.IGNORECASE)
     if html_match:
         insert_at = html_match.end()
-        head_block = f"\n<head>\n{stylesheet_tag}\n</head>"
+        head_block = f"\n<head>\n{head_assets}\n</head>"
         return html_text[:insert_at] + head_block + html_text[insert_at:]
 
-    return f"<head>\n{stylesheet_tag}\n</head>\n{html_text}"
+    return f"<head>\n{head_assets}\n</head>\n{html_text}"
 
 
 def ensure_marker(html_text: str) -> str:
@@ -346,6 +356,16 @@ def unique_output_name(target_name: str, used_names: set[str]) -> str:
         counter += 1
 
 
+def copy_assets_directory() -> None:
+    if not SOURCE_ASSETS_DIR.exists():
+        raise FileNotFoundError(f"Missing assets directory: {SOURCE_ASSETS_DIR}")
+
+    if OUTPUT_ASSETS_DIR.exists():
+        shutil.rmtree(OUTPUT_ASSETS_DIR)
+
+    shutil.copytree(SOURCE_ASSETS_DIR, OUTPUT_ASSETS_DIR)
+
+
 def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
     processed_html = strip_embedded_styling(original_html)
@@ -353,7 +373,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
-    processed_html = ensure_relative_stylesheet(processed_html, depth)
+    processed_html = ensure_head_assets(processed_html, depth)
     processed_html = ensure_marker(processed_html)
     processed_html = remove_empty_wrappers(processed_html)
 
@@ -404,6 +424,7 @@ def generate_section_index(section_slug: str, entries: list[dict]) -> None:
 
     list_html = "\n".join(items) if items else "        <li>No HTML files found</li>"
     section_title = html.escape(humanize_slug(section_slug))
+    head_assets = build_head_assets("../")
 
     page = f"""<!doctype html>
 <html lang="en">
@@ -411,7 +432,7 @@ def generate_section_index(section_slug: str, entries: list[dict]) -> None:
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{section_title}</title>
-    <link rel="stylesheet" href="../assets/style.css">
+{head_assets}
 </head>
 <body>
 {GENERATED_MARKER}
@@ -453,6 +474,7 @@ def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
         )
 
     sections_block = "\n".join(sections_html) if sections_html else "      <p>No sections found</p>"
+    head_assets = build_head_assets("")
 
     page = f"""<!doctype html>
 <html lang="en">
@@ -460,7 +482,7 @@ def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Knowledge Base</title>
-    <link rel="stylesheet" href="assets/style.css">
+{head_assets}
 </head>
 <body>
 {GENERATED_MARKER}
@@ -480,12 +502,8 @@ def main() -> None:
     SOURCE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
     (OUTPUT_DIR / ".nojekyll").write_text("", encoding="utf-8")
-    OUTPUT_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-    if SOURCE_STYLE.exists():
-        shutil.copy2(SOURCE_STYLE, OUTPUT_STYLE)
-    else:
-        raise FileNotFoundError(f"Missing stylesheet: {SOURCE_STYLE}")
+    copy_assets_directory()
 
     source_files = sorted(
         [path for path in SOURCE_DIR.rglob("*.html") if path.is_file()],
@@ -516,8 +534,11 @@ def main() -> None:
     expected_paths = {
         "index.html",
         ".nojekyll",
-        "assets/style.css",
     }
+
+    for asset_path in OUTPUT_ASSETS_DIR.rglob("*"):
+        if asset_path.is_file():
+            expected_paths.add(asset_path.relative_to(OUTPUT_DIR).as_posix())
 
     for section_slug, section_entries in grouped_entries.items():
         expected_paths.add(f"{section_slug}/index.html")
@@ -534,6 +555,11 @@ def main() -> None:
     print("Generated site files:")
     print("  docs/index.html")
     print("  docs/.nojekyll")
+
+    for asset_path in sorted(OUTPUT_ASSETS_DIR.rglob("*")):
+        if asset_path.is_file():
+            print(f"  docs/{asset_path.relative_to(OUTPUT_DIR).as_posix()}")
+
     for section_slug in sorted(grouped_entries.keys()):
         print(f"  docs/{section_slug}/index.html")
         for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):

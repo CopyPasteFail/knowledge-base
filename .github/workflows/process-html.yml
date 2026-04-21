@@ -7,8 +7,9 @@ on:
     paths:
       - "raw-html/**"
       - "tools/process_html.py"
-      - "assets/style.css"
+      - "assets/**"
       - ".github/workflows/process-html.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
