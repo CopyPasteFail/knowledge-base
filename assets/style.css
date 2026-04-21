@@ -1,0 +1,138 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #57606a;
+  --link: #0969da;
+  --border: #d0d7de;
+  --surface: #f6f8fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #9da7b3;
+    --link: #58a6ff;
+    --border: #30363d;
+    --surface: #161b22;
+  }
+}
+
+html {
+  font-size: 18px;
+}
+
+body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.65;
+}
+
+main {
+  width: 100%;
+}
+
+h1, h2, h3, h4 {
+  line-height: 1.25;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+}
+
+h1 {
+  font-size: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35em;
+}
+
+h2 {
+  font-size: 1.45rem;
+}
+
+p, ul, ol, blockquote, pre, table {
+  margin-top: 0.9em;
+  margin-bottom: 0.9em;
+}
+
+a {
+  color: var(--link);
+}
+
+code {
+  font-family: Consolas, Monaco, monospace;
+  font-size: 0.92em;
+  background: var(--surface);
+  padding: 0.12em 0.32em;
+  border-radius: 6px;
+}
+
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+blockquote {
+  margin-left: 0;
+  padding-left: 16px;
+  border-left: 4px solid var(--border);
+  color: var(--muted);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+
+.intro {
+  color: var(--muted);
+}
+
+.index-list {
+  list-style: none;
+  padding: 0;
+}
+
+.index-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.index-list a {
+  font-size: 1.08rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.index-list a:hover {
+  text-decoration: underline;
+}
+
+.meta {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}

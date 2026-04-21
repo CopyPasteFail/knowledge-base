@@ -1,0 +1,45 @@
+name: Process HTML files
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "raw-html/**"
+      - "tools/process_html.py"
+      - "assets/style.css"
+      - ".github/workflows/process-html.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  process-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run processor
+        run: python tools/process_html.py
+
+      - name: Commit generated site if changed
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Generate published HTML site"
+          git push
