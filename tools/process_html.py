@@ -85,6 +85,51 @@ def extract_title(html_text: str, fallback_filename: str) -> str:
     return " ".join(word.capitalize() for word in stem.split())
 
 
+def is_evernote_export(html_text: str) -> bool:
+    markers = [
+        'itemprop="application" content="Evernote"',
+        "itemprop='application' content='Evernote'",
+        "<en-note",
+        "en-note.peso",
+        "Evernote Corporation",
+    ]
+    return any(marker in html_text for marker in markers)
+
+
+def remove_empty_wrappers(html_text: str) -> str:
+    previous = None
+    while previous != html_text:
+        previous = html_text
+
+        html_text = re.sub(
+            r"<div>\s*</div>",
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        html_text = re.sub(
+            r"<span[^>]*>\s*</span>",
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        html_text = re.sub(
+            r"<p>\s*</p>",
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+        html_text = re.sub(
+            r"<div>\s*(?:<div>\s*</div>\s*|<span[^>]*>\s*</span>\s*)+</div>",
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+    return html_text
+
+
 def strip_embedded_styling(html_text: str) -> str:
     html_text = re.sub(
         r"<style\b[^>]*>.*?</style>",
@@ -183,15 +228,76 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
+    return remove_empty_wrappers(html_text)
+
+
+def strip_evernote_heading_controls(html_text: str) -> str:
+    if not is_evernote_export(html_text):
+        return html_text
+
+    control_class_names = {
+        "Mx5dH",
+        "Tuuvp",
+        "E80MK",
+        "i3yTS",
+        "E6zaj",
+    }
+
+    def strip_classes(match: re.Match[str]) -> str:
+        value = match.group(2)
+        classes = [c for c in re.split(r"\s+", value.strip()) if c]
+        classes = [c for c in classes if c not in control_class_names]
+        if classes:
+            return f' class="{" ".join(classes)}"'
+        return ""
+
+    html_text = re.sub(
+        r'(\sclass\s*=\s*["\'])([^"\']*)(["\'])',
+        strip_classes,
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    return remove_empty_wrappers(html_text)
+
+
+def strip_evernote_generated_toc(html_text: str) -> str:
+    """
+    Remove Evernote-generated TOC blocks.
+
+    Only runs on Evernote exports.
+    Primary signal is data-testid="tableofcontents".
+    """
+    if not is_evernote_export(html_text):
+        return html_text
+
+    pattern = re.compile(
+        r"""
+        <
+        (?P<tag>div|section|nav|aside)
+        (?P<attrs>[^>]*data-testid\s*=\s*["']tableofcontents["'][^>]*)
+        >
+        (?P<body>.*?)
+        </(?P=tag)>
+        """,
+        flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
+    )
+
     previous = None
     while previous != html_text:
         previous = html_text
-        html_text = re.sub(
-            r"<div>\s*</div>",
-            "",
-            html_text,
-            flags=re.IGNORECASE | re.DOTALL,
-        )
+        html_text = pattern.sub("", html_text)
+
+    return remove_empty_wrappers(html_text)
+
+
+def cleanup_dangling_toc_wrappers(html_text: str) -> str:
+    html_text = re.sub(
+        r"(</h1>)\s*</div>\s*(<h1\b)",
+        r"\1 \2",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
 
     return html_text
 
@@ -244,8 +350,12 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
     processed_html = strip_embedded_styling(original_html)
     processed_html = strip_evernote_checklists(processed_html)
+    processed_html = strip_evernote_heading_controls(processed_html)
+    processed_html = strip_evernote_generated_toc(processed_html)
+    processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = ensure_relative_stylesheet(processed_html, depth)
     processed_html = ensure_marker(processed_html)
+    processed_html = remove_empty_wrappers(processed_html)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(processed_html, encoding="utf-8")
@@ -384,7 +494,6 @@ def main() -> None:
 
     section_name_usage: dict[str, set[str]] = defaultdict(set)
     grouped_entries: dict[str, list[dict]] = defaultdict(list)
-    entries: list[dict] = []
 
     for source_path in source_files:
         relative_source = source_path.relative_to(SOURCE_DIR)
@@ -402,7 +511,6 @@ def main() -> None:
 
         output_path = OUTPUT_DIR / section_slug / output_name
         entry = write_output_file(source_path, output_path, depth=1)
-        entries.append(entry)
         grouped_entries[section_slug].append(entry)
 
     expected_paths = {
