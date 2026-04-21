@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 import html
 import re
@@ -15,7 +16,6 @@ OUTPUT_ASSETS_DIR = OUTPUT_DIR / "assets"
 OUTPUT_STYLE = OUTPUT_ASSETS_DIR / "style.css"
 
 GENERATED_MARKER = "<!-- generated-by: tools/process_html.py -->"
-STYLESHEET_HREF = "assets/style.css"
 
 
 def slugify_filename(filename: str) -> str:
@@ -35,6 +35,22 @@ def slugify_filename(filename: str) -> str:
         stem = "page"
 
     return f"{stem}.html"
+
+
+def slugify_segment(name: str) -> str:
+    text = unicodedata.normalize("NFKD", name)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    text = text.lower()
+    text = text.replace("_", "-")
+    text = re.sub(r"\s+", "-", text)
+    text = re.sub(r"[^a-z0-9-]+", "", text)
+    text = re.sub(r"-{2,}", "-", text)
+    text = text.strip("-")
+    return text or "section"
+
+
+def humanize_slug(slug: str) -> str:
+    return " ".join(word.capitalize() for word in slug.replace("-", " ").split())
 
 
 def clean_text(text: str) -> str:
@@ -103,7 +119,6 @@ def strip_embedded_styling(html_text: str) -> str:
 
 
 def strip_evernote_checklists(html_text: str) -> str:
-    # Remove Evernote todo custom elements if present
     html_text = re.sub(
         r"<en-todo\b[^>]*>\s*</en-todo>",
         "",
@@ -117,7 +132,6 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove checkbox inputs
     html_text = re.sub(
         r"<input\b[^>]*type\s*=\s*['\"]checkbox['\"][^>]*>",
         "",
@@ -125,7 +139,6 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove container div that only exists to hold checklist bullets
     html_text = re.sub(
         r'<div\b[^>]*class\s*=\s*["\'][^"\']*\blist-bullet-todo-container\b[^"\']*["\'][^>]*>\s*</div>',
         "",
@@ -133,7 +146,6 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Unwrap list-content wrapper but keep its inner HTML
     html_text = re.sub(
         r'<div\b([^>]*)class\s*=\s*["\'][^"\']*\blist-content\b[^"\']*["\']([^>]*)>',
         "<div>",
@@ -141,7 +153,6 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove checklist-related attributes
     for attr in ["data-checked", "aria-checked", "contenteditable", "draggable", "tabindex"]:
         html_text = re.sub(
             rf'\s{attr}\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
@@ -150,7 +161,6 @@ def strip_evernote_checklists(html_text: str) -> str:
             flags=re.IGNORECASE | re.DOTALL,
         )
 
-    # Remove Evernote checklist classes while keeping other classes intact
     def strip_classes(match: re.Match[str]) -> str:
         value = match.group(2)
         classes = [c for c in re.split(r"\s+", value.strip()) if c]
@@ -173,7 +183,6 @@ def strip_evernote_checklists(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove empty divs left behind by checklist cleanup
     previous = None
     while previous != html_text:
         previous = html_text
@@ -187,11 +196,12 @@ def strip_evernote_checklists(html_text: str) -> str:
     return html_text
 
 
-def inject_stylesheet(html_text: str) -> str:
-    if STYLESHEET_HREF in html_text:
+def ensure_relative_stylesheet(html_text: str, depth: int) -> str:
+    href = "../" * depth + "assets/style.css"
+    if href in html_text:
         return html_text
 
-    stylesheet_tag = f'    <link rel="stylesheet" href="{STYLESHEET_HREF}">'
+    stylesheet_tag = f'    <link rel="stylesheet" href="{href}">'
 
     head_match = re.search(r"<head[^>]*>", html_text, flags=re.IGNORECASE)
     if head_match:
@@ -230,31 +240,31 @@ def unique_output_name(target_name: str, used_names: set[str]) -> str:
         counter += 1
 
 
-def write_output_file(source_path: Path, output_name: str) -> dict:
+def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
     processed_html = strip_embedded_styling(original_html)
     processed_html = strip_evernote_checklists(processed_html)
-    processed_html = inject_stylesheet(processed_html)
+    processed_html = ensure_relative_stylesheet(processed_html, depth)
     processed_html = ensure_marker(processed_html)
 
-    output_path = OUTPUT_DIR / output_name
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(processed_html, encoding="utf-8")
 
-    title = extract_title(processed_html, output_name)
+    title = extract_title(processed_html, output_path.name)
 
     return {
         "source_name": source_path.name,
-        "output_name": output_name,
+        "output_name": output_path.name,
+        "output_relpath": output_path.relative_to(OUTPUT_DIR).as_posix(),
         "title": title,
+        "section": output_path.parent.relative_to(OUTPUT_DIR).as_posix(),
     }
 
 
-def remove_stale_generated_files(expected_names: set[str]) -> None:
-    for path in OUTPUT_DIR.glob("*.html"):
-        if path.name == "index.html":
-            continue
-
-        if path.name in expected_names:
+def remove_stale_generated_files(expected_paths: set[str]) -> None:
+    for path in OUTPUT_DIR.rglob("*.html"):
+        rel = path.relative_to(OUTPUT_DIR).as_posix()
+        if rel in expected_paths:
             continue
 
         try:
@@ -266,7 +276,9 @@ def remove_stale_generated_files(expected_names: set[str]) -> None:
             path.unlink()
 
 
-def generate_index(entries: list[dict]) -> None:
+def generate_section_index(section_slug: str, entries: list[dict]) -> None:
+    section_dir = OUTPUT_DIR / section_slug
+
     items = []
     for entry in sorted(entries, key=lambda item: item["title"].lower()):
         title = html.escape(entry["title"])
@@ -281,20 +293,21 @@ def generate_index(entries: list[dict]) -> None:
         )
 
     list_html = "\n".join(items) if items else "        <li>No HTML files found</li>"
+    section_title = html.escape(humanize_slug(section_slug))
 
-    index_html = f"""<!doctype html>
+    page = f"""<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI Tools</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <title>{section_title}</title>
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 {GENERATED_MARKER}
     <main>
-      <h1>AI Tools</h1>
-      <p class="intro">Published notes generated automatically from the files in <code>raw-html/</code></p>
+      <p><a href="../">← Back to Knowledge Base</a></p>
+      <h1>{section_title}</h1>
 
       <ul class="index-list">
 {list_html}
@@ -303,7 +316,54 @@ def generate_index(entries: list[dict]) -> None:
 </body>
 </html>
 """
-    (OUTPUT_DIR / "index.html").write_text(index_html, encoding="utf-8")
+    section_dir.mkdir(parents=True, exist_ok=True)
+    (section_dir / "index.html").write_text(page, encoding="utf-8")
+
+
+def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
+    sections_html = []
+
+    for section_slug in sorted(grouped_entries.keys()):
+        section_title = html.escape(humanize_slug(section_slug))
+        section_href = html.escape(f"{section_slug}/")
+        section_items = []
+
+        for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):
+            title = html.escape(entry["title"])
+            href = html.escape(f"{section_slug}/{entry['output_name']}")
+            section_items.append(f'          <li><a href="{href}">{title}</a></li>')
+
+        sections_html.append(
+            f"""      <section class="kb-section">
+        <h2><a href="{section_href}">{section_title}</a></h2>
+        <ul>
+{chr(10).join(section_items)}
+        </ul>
+      </section>"""
+        )
+
+    sections_block = "\n".join(sections_html) if sections_html else "      <p>No sections found</p>"
+
+    page = f"""<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Knowledge Base</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+{GENERATED_MARKER}
+    <main>
+      <h1>Knowledge Base</h1>
+      <p class="intro">Public notes generated automatically from the files in <code>raw-html/</code></p>
+
+{sections_block}
+    </main>
+</body>
+</html>
+"""
+    (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
 
 def main() -> None:
@@ -318,28 +378,58 @@ def main() -> None:
         raise FileNotFoundError(f"Missing stylesheet: {SOURCE_STYLE}")
 
     source_files = sorted(
-        [path for path in SOURCE_DIR.glob("*.html") if path.is_file()],
-        key=lambda p: p.name.lower(),
+        [path for path in SOURCE_DIR.rglob("*.html") if path.is_file()],
+        key=lambda p: p.as_posix().lower(),
     )
 
-    used_names: set[str] = set()
+    section_name_usage: dict[str, set[str]] = defaultdict(set)
+    grouped_entries: dict[str, list[dict]] = defaultdict(list)
     entries: list[dict] = []
 
     for source_path in source_files:
-        normalized_name = slugify_filename(source_path.name)
-        output_name = unique_output_name(normalized_name, used_names)
-        entry = write_output_file(source_path, output_name)
-        entries.append(entry)
+        relative_source = source_path.relative_to(SOURCE_DIR)
+        parts = relative_source.parts
 
-    expected_names = {entry["output_name"] for entry in entries}
-    remove_stale_generated_files(expected_names)
-    generate_index(entries)
+        if len(parts) == 1:
+            section_slug = "misc"
+        else:
+            section_slug = slugify_segment(parts[0])
+
+        output_name = unique_output_name(
+            slugify_filename(source_path.name),
+            section_name_usage[section_slug],
+        )
+
+        output_path = OUTPUT_DIR / section_slug / output_name
+        entry = write_output_file(source_path, output_path, depth=1)
+        entries.append(entry)
+        grouped_entries[section_slug].append(entry)
+
+    expected_paths = {
+        "index.html",
+        ".nojekyll",
+        "assets/style.css",
+    }
+
+    for section_slug, section_entries in grouped_entries.items():
+        expected_paths.add(f"{section_slug}/index.html")
+        for entry in section_entries:
+            expected_paths.add(entry["output_relpath"])
+
+    remove_stale_generated_files(expected_paths)
+
+    for section_slug, section_entries in grouped_entries.items():
+        generate_section_index(section_slug, section_entries)
+
+    generate_root_index(grouped_entries)
 
     print("Generated site files:")
-    for entry in entries:
-        print(f"  {entry['source_name']} -> docs/{entry['output_name']}")
     print("  docs/index.html")
     print("  docs/.nojekyll")
+    for section_slug in sorted(grouped_entries.keys()):
+        print(f"  docs/{section_slug}/index.html")
+        for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):
+            print(f"  docs/{entry['output_relpath']}")
 
 
 if __name__ == "__main__":
