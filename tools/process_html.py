@@ -19,21 +19,8 @@ STYLESHEET_HREF = "assets/style.css"
 
 
 def slugify_filename(filename: str) -> str:
-    """
-    Make filenames readable and URL-friendly.
-
-    Rules:
-    - lowercase
-    - keep letters and digits
-    - convert spaces/underscores to hyphens
-    - keep existing hyphens
-    - remove punctuation and other non-standard characters
-    - collapse repeated hyphens
-    - trim leading/trailing hyphens
-    """
     stem = Path(filename).stem
 
-    # Normalize unicode to ASCII where possible
     stem = unicodedata.normalize("NFKD", stem)
     stem = stem.encode("ascii", "ignore").decode("ascii")
 
@@ -48,6 +35,13 @@ def slugify_filename(filename: str) -> str:
         stem = "page"
 
     return f"{stem}.html"
+
+
+def clean_text(text: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
 
 
 def extract_title(html_text: str, fallback_filename: str) -> str:
@@ -75,11 +69,41 @@ def extract_title(html_text: str, fallback_filename: str) -> str:
     return " ".join(word.capitalize() for word in stem.split())
 
 
-def clean_text(text: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = html.unescape(text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+def strip_embedded_styling(html_text: str) -> str:
+    # Remove all embedded style blocks
+    html_text = re.sub(
+        r"<style\b[^>]*>.*?</style>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove existing stylesheet links
+    html_text = re.sub(
+        r'<link\b[^>]*rel=["\']?stylesheet["\']?[^>]*>',
+        "",
+        html_text,
+        flags=re.IGNORECASE,
+    )
+
+    # Remove inline style attributes
+    html_text = re.sub(
+        r'\sstyle\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove old-school presentational attributes
+    for attr in ["bgcolor", "text", "link", "vlink", "alink"]:
+        html_text = re.sub(
+            rf'\s{attr}\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+    return html_text
 
 
 def inject_stylesheet(html_text: str) -> str:
@@ -127,7 +151,8 @@ def unique_output_name(target_name: str, used_names: set[str]) -> str:
 
 def write_output_file(source_path: Path, output_name: str) -> dict:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
-    processed_html = inject_stylesheet(original_html)
+    processed_html = strip_embedded_styling(original_html)
+    processed_html = inject_stylesheet(processed_html)
     processed_html = ensure_marker(processed_html)
 
     output_path = OUTPUT_DIR / output_name
