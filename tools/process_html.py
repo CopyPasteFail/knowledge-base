@@ -283,6 +283,29 @@ def strip_evernote_generated_toc(html_text: str) -> str:
     return remove_empty_wrappers(html_text)
 
 
+def strip_evernote_shell_artifacts(html_text: str) -> str:
+    html_text = re.sub(
+        r"<icons\b[^>]*>.*?</icons>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html_text = re.sub(
+        r"<note-attributes\b[^>]*>.*?</note-attributes>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html_text = re.sub(
+        r"<h1\b[^>]*class\s*=\s*['\"][^'\"]*\bnoteTitle\b[^'\"]*['\"][^>]*>.*?</h1>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html_text = re.sub(r"</?en-note\b[^>]*>", "", html_text, flags=re.IGNORECASE)
+    return remove_empty_wrappers(html_text)
+
+
 def cleanup_dangling_toc_wrappers(html_text: str) -> str:
     html_text = re.sub(
         r"(</h1>)\s*</div>\s*(<h1\b)",
@@ -297,12 +320,17 @@ def cleanup_dangling_toc_wrappers(html_text: str) -> str:
 def build_head_assets(prefix: str) -> str:
     return "\n".join(
         [
+            '    <meta name="color-scheme" content="dark light">',
             f'    <link rel="stylesheet" href="{prefix}assets/style.css">',
             f'    <link rel="icon" href="{prefix}assets/favicon.svg" type="image/svg+xml">',
             f'    <link rel="manifest" href="{prefix}assets/site.webmanifest">',
-            '    <meta name="theme-color" content="#111827">',
+            '    <meta name="theme-color" content="#0b1326">',
         ]
     )
+
+
+def script_tag(prefix: str) -> str:
+    return f'    <script src="{prefix}assets/site.js" defer></script>'
 
 
 def ensure_head_assets(html_text: str, depth: int) -> str:
@@ -331,6 +359,243 @@ def ensure_head_assets(html_text: str, depth: int) -> str:
         return html_text[:insert_at] + head_block + html_text[insert_at:]
 
     return f"<head>\n{head_assets}\n</head>\n{html_text}"
+
+
+def extract_body_content(html_text: str) -> str:
+    body_match = re.search(
+        r"<body\b[^>]*>(.*?)</body>",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if body_match:
+        return body_match.group(1).strip()
+    return html_text.strip()
+
+
+def strip_duplicate_title_heading(content: str, title: str) -> str:
+    pattern = re.compile(r"<h1\b[^>]*>\s*(.*?)\s*</h1>", flags=re.IGNORECASE | re.DOTALL)
+    match = pattern.search(content)
+    if not match:
+        return content
+    if clean_text(match.group(1)).lower() != title.lower():
+        return content
+    return content[: match.start()] + content[match.end() :]
+
+
+def unique_slug(text: str, used: set[str]) -> str:
+    base = slugify_segment(text)
+    slug = base
+    counter = 2
+    while slug in used:
+        slug = f"{base}-{counter}"
+        counter += 1
+    used.add(slug)
+    return slug
+
+
+def add_heading_ids_and_collect_toc(content: str) -> tuple[str, list[dict[str, str]]]:
+    toc: list[dict[str, str]] = []
+    used: set[str] = set()
+
+    def replace_heading(match: re.Match[str]) -> str:
+        level = match.group("level")
+        attrs = match.group("attrs") or ""
+        inner = match.group("inner")
+        title = clean_text(inner)
+
+        if not title or len(title) > 100:
+            return match.group(0)
+
+        existing_id = re.search(r'\sid\s*=\s*["\']([^"\']+)["\']', attrs, flags=re.IGNORECASE)
+        slug = existing_id.group(1) if existing_id else unique_slug(title, used)
+        if existing_id:
+            used.add(slug)
+        else:
+            attrs = f'{attrs} id="{html.escape(slug, quote=True)}"'
+
+        toc.append({"level": level, "title": title, "id": slug})
+        return f"<h{level}{attrs}>{inner}</h{level}>"
+
+    heading_pattern = re.compile(
+        r"<h(?P<level>[2-3])(?P<attrs>[^>]*)>(?P<inner>.*?)</h(?P=level)>",
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    return heading_pattern.sub(replace_heading, content), toc
+
+
+def render_header(prefix: str) -> str:
+    return f"""    <header class="devbrain-header">
+      <a class="brand" href="{prefix}index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="{prefix}index.html">Docs</a>
+        <a href="{prefix}index.html#api">API</a>
+        <a href="{prefix}index.html#changelog">Changelog</a>
+        <a href="{prefix}index.html#community">Community</a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button" href="https://github.com/" aria-label="Open GitHub">GitHub</a>
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>"""
+
+
+def render_page(title: str, prefix: str, body_class: str, content: str) -> str:
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{html.escape(title)} · DevBrain</title>
+{build_head_assets(prefix)}
+</head>
+<body class="{body_class}">
+{GENERATED_MARKER}
+{render_header(prefix)}
+{content}
+{script_tag(prefix)}
+</body>
+</html>
+"""
+
+
+def flatten_entries(grouped_entries: dict[str, list[dict]]) -> list[dict]:
+    entries: list[dict] = []
+    for section_slug in sorted(grouped_entries.keys()):
+        entries.extend(sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()))
+    return entries
+
+
+def entry_href(entry: dict, current_section: str | None, prefix: str) -> str:
+    if current_section == entry["section"]:
+        return html.escape(entry["output_name"])
+    return html.escape(f"{prefix}{entry['output_relpath']}")
+
+
+def render_article_tree(
+    grouped_entries: dict[str, list[dict]],
+    current_section: str | None,
+    current_output: str | None,
+    prefix: str,
+) -> str:
+    sections = []
+    for section_slug in sorted(grouped_entries.keys()):
+        section_title = html.escape(humanize_slug(section_slug))
+        items = []
+        for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):
+            active = entry["section"] == current_section and entry["output_name"] == current_output
+            class_name = "tree-link is-active" if active else "tree-link"
+            items.append(
+                f'          <li><a href="{entry_href(entry, current_section, prefix)}" class="{class_name}">{html.escape(entry["title"])}</a></li>'
+            )
+        sections.append(
+            f"""        <section class="tree-section">
+          <h2>{section_title}</h2>
+          <ul>
+{chr(10).join(items)}
+          </ul>
+        </section>"""
+        )
+
+    sections_html = chr(10).join(sections)
+
+    return f"""      <aside class="docs-sidebar" aria-label="Documentation navigation">
+        <div class="desktop-docs-nav">
+          <div class="sidebar-kicker">Documentation</div>
+{sections_html}
+        </div>
+        <details class="mobile-docs-nav">
+          <summary class="mobile-docs-summary">Documentation</summary>
+          <div class="mobile-docs-content">
+{sections_html}
+          </div>
+        </details>
+      </aside>"""
+
+
+def render_toc(toc: list[dict[str, str]]) -> str:
+    if not toc:
+        return """      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <p class="toc-empty">No section headings</p>
+      </aside>"""
+
+    links = []
+    for item in toc:
+        title = html.escape(item["title"])
+        href = html.escape(f'#{item["id"]}')
+        links.append(f'          <li class="toc-level-{item["level"]}"><a href="{href}">{title}</a></li>')
+
+    return f"""      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+{chr(10).join(links)}
+        </ol>
+      </aside>"""
+
+
+def render_prev_next(all_entries: list[dict], current_entry: dict) -> str:
+    index = all_entries.index(current_entry)
+    previous_entry = all_entries[index - 1] if index > 0 else None
+    next_entry = all_entries[index + 1] if index + 1 < len(all_entries) else None
+
+    def item(label: str, entry: dict | None, direction: str) -> str:
+        if not entry:
+            return f'<span class="pager-link is-disabled"><span>{label}</span><strong>{direction}</strong></span>'
+        href = html.escape(f"../{entry['output_relpath']}")
+        return f'<a class="pager-link" href="{href}"><span>{label}</span><strong>{html.escape(entry["title"])}</strong></a>'
+
+    return f"""        <nav class="article-pager" aria-label="Article navigation">
+          {item("Previous", previous_entry, "Start")}
+          {item("Next", next_entry, "End")}
+        </nav>"""
+
+
+def render_article_page(
+    entry: dict,
+    grouped_entries: dict[str, list[dict]],
+    all_entries: list[dict],
+) -> str:
+    source_path = entry["source_path"]
+    original_html = source_path.read_text(encoding="utf-8", errors="ignore")
+    processed_html = strip_embedded_styling(original_html)
+    processed_html = strip_evernote_checklists(processed_html)
+    processed_html = strip_evernote_heading_controls(processed_html)
+    processed_html = strip_evernote_generated_toc(processed_html)
+    processed_html = strip_evernote_shell_artifacts(processed_html)
+    processed_html = cleanup_dangling_toc_wrappers(processed_html)
+    processed_html = remove_empty_wrappers(processed_html)
+
+    title = entry["title"]
+    content = extract_body_content(processed_html)
+    content = strip_duplicate_title_heading(content, title)
+    content, toc = add_heading_ids_and_collect_toc(content)
+
+    section_title = humanize_slug(entry["section"])
+    source_name = html.escape(entry["source_name"])
+    article = f"""    <main class="docs-layout">
+{render_article_tree(grouped_entries, entry["section"], entry["output_name"], "../")}
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">{html.escape(section_title)}</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">{html.escape(section_title)}</p>
+          <h1>{html.escape(title)}</h1>
+          <p class="article-meta">Source: {source_name}</p>
+        </header>
+        <div class="article-content">
+{content}
+        </div>
+{render_prev_next(all_entries, entry)}
+      </article>
+{render_toc(toc)}
+    </main>"""
+    return render_page(title, "../", "article-page", article)
 
 
 def ensure_marker(html_text: str) -> str:
@@ -372,6 +637,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     processed_html = strip_evernote_checklists(processed_html)
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
+    processed_html = strip_evernote_shell_artifacts(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = ensure_head_assets(processed_html, depth)
     processed_html = ensure_marker(processed_html)
@@ -406,7 +672,11 @@ def remove_stale_generated_files(expected_paths: set[str]) -> None:
             path.unlink()
 
 
-def generate_section_index(section_slug: str, entries: list[dict]) -> None:
+def generate_section_index(
+    section_slug: str,
+    entries: list[dict],
+    grouped_entries: dict[str, list[dict]],
+) -> None:
     section_dir = OUTPUT_DIR / section_slug
 
     items = []
@@ -416,85 +686,137 @@ def generate_section_index(section_slug: str, entries: list[dict]) -> None:
         source_name = html.escape(entry["source_name"])
 
         items.append(
-            f"""        <li>
-          <a href="{href}">{title}</a>
-          <div class="meta">Source file: {source_name}</div>
-        </li>"""
+            f"""          <li class="doc-result" data-search-item data-title="{title}" data-section="{html.escape(humanize_slug(section_slug))}">
+            <a href="{href}">{title}</a>
+            <span>Source: {source_name}</span>
+          </li>"""
         )
 
-    list_html = "\n".join(items) if items else "        <li>No HTML files found</li>"
+    list_html = "\n".join(items) if items else "          <li>No HTML files found</li>"
     section_title = html.escape(humanize_slug(section_slug))
-    head_assets = build_head_assets("../")
-
-    page = f"""<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{section_title}</title>
-{head_assets}
-</head>
-<body>
-{GENERATED_MARKER}
-    <main>
-      <p><a href="../">← Back to Knowledge Base</a></p>
-      <h1>{section_title}</h1>
-
-      <ul class="index-list">
+    page_body = f"""    <main class="section-layout">
+{render_article_tree(grouped_entries, section_slug, None, "../")}
+      <section class="section-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <span>{section_title}</span>
+        </nav>
+        <header class="section-header">
+          <p class="eyebrow">Category</p>
+          <h1>{section_title}</h1>
+          <p>Browse the generated notes in this collection.</p>
+        </header>
+        <label class="section-filter">
+          <span>Filter this category</span>
+          <input type="search" placeholder="Filter {section_title}..." data-search-input>
+        </label>
+        <ul class="index-list">
 {list_html}
-      </ul>
-    </main>
-</body>
-</html>
-"""
+        </ul>
+      </section>
+    </main>"""
+    page = render_page(section_title, "../", "section-page", page_body)
     section_dir.mkdir(parents=True, exist_ok=True)
     (section_dir / "index.html").write_text(page, encoding="utf-8")
 
 
 def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
     sections_html = []
+    all_entries = flatten_entries(grouped_entries)
 
     for section_slug in sorted(grouped_entries.keys()):
         section_title = html.escape(humanize_slug(section_slug))
         section_href = html.escape(f"{section_slug}/")
-        section_items = []
-
-        for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):
-            title = html.escape(entry["title"])
-            href = html.escape(f"{section_slug}/{entry['output_name']}")
-            section_items.append(f'          <li><a href="{href}">{title}</a></li>')
+        count = len(grouped_entries[section_slug])
+        sample = sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower())[0]["title"]
 
         sections_html.append(
-            f"""      <section class="kb-section">
-        <h2><a href="{section_href}">{section_title}</a></h2>
-        <ul>
-{chr(10).join(section_items)}
-        </ul>
-      </section>"""
+            f"""          <a class="topic-card" href="{section_href}">
+            <span class="topic-icon">{section_title[:2].upper()}</span>
+            <strong>{section_title}</strong>
+            <span>{count} generated {"article" if count == 1 else "articles"}</span>
+            <small>Start with {html.escape(sample)}</small>
+          </a>"""
         )
 
-    sections_block = "\n".join(sections_html) if sections_html else "      <p>No sections found</p>"
-    head_assets = build_head_assets("")
+    search_items = []
+    for entry in all_entries:
+        title = html.escape(entry["title"])
+        section = html.escape(humanize_slug(entry["section"]))
+        href = html.escape(entry["output_relpath"])
+        search_items.append(
+            f"""          <li class="doc-result" data-search-item data-title="{title}" data-section="{section}">
+            <a href="{href}">{title}</a>
+            <span>{section}</span>
+          </li>"""
+        )
 
-    page = f"""<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Knowledge Base</title>
-{head_assets}
-</head>
-<body>
-{GENERATED_MARKER}
-    <main>
-      <h1>Knowledge Base</h1>
-      <p class="intro">Public notes generated automatically from the files in <code>raw-html/</code></p>
+    quick_links = []
+    for entry in sorted(all_entries, key=lambda item: (len(item["title"]), item["title"].lower()))[:8]:
+        quick_links.append(
+            f'<a class="chip" href="{html.escape(entry["output_relpath"])}">{html.escape(entry["title"])}</a>'
+        )
 
+    recent_items = []
+    for entry in sorted(all_entries, key=lambda item: item["source_path"].stat().st_mtime, reverse=True)[:6]:
+        recent_items.append(
+            f"""          <li>
+            <a href="{html.escape(entry["output_relpath"])}">{html.escape(entry["title"])}</a>
+            <span>{html.escape(humanize_slug(entry["section"]))}</span>
+          </li>"""
+        )
+
+    sections_block = "\n".join(sections_html) if sections_html else "          <p>No sections found</p>"
+    search_block = "\n".join(search_items) if search_items else "          <li>No documents found</li>"
+    quick_links_block = "\n".join(quick_links)
+    recent_block = "\n".join(recent_items)
+
+    page_body = f"""    <main class="home-shell">
+      <section class="search-hero" aria-labelledby="home-title">
+        <p class="eyebrow">Static developer knowledge base</p>
+        <h1 id="home-title">DevBrain</h1>
+        <p class="intro">Search and browse generated notes from <code>raw-html/</code>.</p>
+        <label class="global-search">
+          <span>Search documentation</span>
+          <input type="search" placeholder="Search notes, topics, and source files..." data-search-input autofocus>
+        </label>
+        <ul class="search-results" aria-label="Search results">
+{search_block}
+        </ul>
+      </section>
+
+      <section class="home-section" aria-labelledby="topics-title">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Browse</p>
+            <h2 id="topics-title">Topics</h2>
+          </div>
+        </div>
+        <div class="topic-grid">
 {sections_block}
-    </main>
-</body>
-</html>
-"""
+        </div>
+      </section>
+
+      <section class="home-section two-column">
+        <div>
+          <p class="eyebrow">Generated</p>
+          <h2>Quick links</h2>
+          <div class="chip-row">
+{quick_links_block}
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">Deterministic</p>
+          <h2>Recent updates</h2>
+          <ul class="recent-list">
+{recent_block}
+          </ul>
+        </div>
+      </section>
+    </main>"""
+
+    page = render_page("DevBrain Knowledge Base", "", "home-page", page_body)
     (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
 
@@ -528,8 +850,27 @@ def main() -> None:
         )
 
         output_path = OUTPUT_DIR / section_slug / output_name
-        entry = write_output_file(source_path, output_path, depth=1)
+        original_html = source_path.read_text(encoding="utf-8", errors="ignore")
+        title = extract_title(original_html, output_name)
+        entry = {
+            "source_path": source_path,
+            "source_name": source_path.name,
+            "output_path": output_path,
+            "output_name": output_name,
+            "output_relpath": output_path.relative_to(OUTPUT_DIR).as_posix(),
+            "title": title,
+            "section": section_slug,
+        }
         grouped_entries[section_slug].append(entry)
+
+    all_entries = flatten_entries(grouped_entries)
+
+    for entry in all_entries:
+        entry["output_path"].parent.mkdir(parents=True, exist_ok=True)
+        entry["output_path"].write_text(
+            render_article_page(entry, grouped_entries, all_entries),
+            encoding="utf-8",
+        )
 
     expected_paths = {
         "index.html",
@@ -548,7 +889,7 @@ def main() -> None:
     remove_stale_generated_files(expected_paths)
 
     for section_slug, section_entries in grouped_entries.items():
-        generate_section_index(section_slug, section_entries)
+        generate_section_index(section_slug, section_entries, grouped_entries)
 
     generate_root_index(grouped_entries)
 

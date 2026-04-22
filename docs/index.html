@@ -3,36 +3,146 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Knowledge Base</title>
+    <title>DevBrain Knowledge Base · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
     <link rel="stylesheet" href="assets/style.css">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="assets/site.webmanifest">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#0b1326">
 </head>
-<body>
+<body class="home-page">
 <!-- generated-by: tools/process_html.py -->
-    <main>
-      <h1>Knowledge Base</h1>
-      <p class="intro">Public notes generated automatically from the files in <code>raw-html/</code></p>
-
-      <section class="kb-section">
-        <h2><a href="ai/">Ai</a></h2>
-        <ul>
-          <li><a href="ai/agent-and-application-orchestration.html">Agent And Application Orchestration</a></li>
-          <li><a href="ai/ai-safety-sycophantic-misaligned-and-adversarial.html">AI Safety - Sycophantic, Misaligned, and Adversarial</a></li>
-          <li><a href="ai/asset-hubs.html">Asset Hubs</a></li>
-          <li><a href="ai/execution-tools.html">Execution Tools</a></li>
-          <li><a href="ai/local-cli-and-agentic-llm-tools.html">Local, CLI, and Agentic LLM Tools</a></li>
-          <li><a href="ai/rag-retrieval-augmented-generation.html">RAG (Retrieval-Augmented Generation)</a></li>
-          <li><a href="ai/useful-agent-skills-repos.html">Useful Agent Skills Repos</a></li>
+    <header class="devbrain-header">
+      <a class="brand" href="index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="index.html">Docs</a>
+        <a href="index.html#api">API</a>
+        <a href="index.html#changelog">Changelog</a>
+        <a href="index.html#community">Community</a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button" href="https://github.com/" aria-label="Open GitHub">GitHub</a>
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="home-shell">
+      <section class="search-hero" aria-labelledby="home-title">
+        <p class="eyebrow">Static developer knowledge base</p>
+        <h1 id="home-title">DevBrain</h1>
+        <p class="intro">Search and browse generated notes from <code>raw-html/</code>.</p>
+        <label class="global-search">
+          <span>Search documentation</span>
+          <input type="search" placeholder="Search notes, topics, and source files..." data-search-input autofocus>
+        </label>
+        <ul class="search-results" aria-label="Search results">
+          <li class="doc-result" data-search-item data-title="Agent And Application Orchestration" data-section="Ai">
+            <a href="ai/agent-and-application-orchestration.html">Agent And Application Orchestration</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="AI Safety - Sycophantic, Misaligned, and Adversarial" data-section="Ai">
+            <a href="ai/ai-safety-sycophantic-misaligned-and-adversarial.html">AI Safety - Sycophantic, Misaligned, and Adversarial</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Asset Hubs" data-section="Ai">
+            <a href="ai/asset-hubs.html">Asset Hubs</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Execution Tools" data-section="Ai">
+            <a href="ai/execution-tools.html">Execution Tools</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Local, CLI, and Agentic LLM Tools" data-section="Ai">
+            <a href="ai/local-cli-and-agentic-llm-tools.html">Local, CLI, and Agentic LLM Tools</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="RAG (Retrieval-Augmented Generation)" data-section="Ai">
+            <a href="ai/rag-retrieval-augmented-generation.html">RAG (Retrieval-Augmented Generation)</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Useful Agent Skills Repos" data-section="Ai">
+            <a href="ai/useful-agent-skills-repos.html">Useful Agent Skills Repos</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="DevOps Screening Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/devops-screening-cheat-sheet.html">DevOps Screening Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
         </ul>
       </section>
-      <section class="kb-section">
-        <h2><a href="devops-interview-prep/">Devops Interview Prep</a></h2>
-        <ul>
-          <li><a href="devops-interview-prep/devops-screening-cheat-sheet.html">DevOps Screening Cheat-sheet</a></li>
-        </ul>
+
+      <section class="home-section" aria-labelledby="topics-title">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Browse</p>
+            <h2 id="topics-title">Topics</h2>
+          </div>
+        </div>
+        <div class="topic-grid">
+          <a class="topic-card" href="ai/">
+            <span class="topic-icon">AI</span>
+            <strong>Ai</strong>
+            <span>7 generated articles</span>
+            <small>Start with Agent And Application Orchestration</small>
+          </a>
+          <a class="topic-card" href="devops-interview-prep/">
+            <span class="topic-icon">DE</span>
+            <strong>Devops Interview Prep</strong>
+            <span>1 generated article</span>
+            <small>Start with DevOps Screening Cheat-sheet</small>
+          </a>
+        </div>
+      </section>
+
+      <section class="home-section two-column">
+        <div>
+          <p class="eyebrow">Generated</p>
+          <h2>Quick links</h2>
+          <div class="chip-row">
+<a class="chip" href="ai/asset-hubs.html">Asset Hubs</a>
+<a class="chip" href="ai/execution-tools.html">Execution Tools</a>
+<a class="chip" href="ai/useful-agent-skills-repos.html">Useful Agent Skills Repos</a>
+<a class="chip" href="devops-interview-prep/devops-screening-cheat-sheet.html">DevOps Screening Cheat-sheet</a>
+<a class="chip" href="ai/local-cli-and-agentic-llm-tools.html">Local, CLI, and Agentic LLM Tools</a>
+<a class="chip" href="ai/agent-and-application-orchestration.html">Agent And Application Orchestration</a>
+<a class="chip" href="ai/rag-retrieval-augmented-generation.html">RAG (Retrieval-Augmented Generation)</a>
+<a class="chip" href="ai/ai-safety-sycophantic-misaligned-and-adversarial.html">AI Safety - Sycophantic, Misaligned, and Adversarial</a>
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">Deterministic</p>
+          <h2>Recent updates</h2>
+          <ul class="recent-list">
+          <li>
+            <a href="ai/ai-safety-sycophantic-misaligned-and-adversarial.html">AI Safety - Sycophantic, Misaligned, and Adversarial</a>
+            <span>Ai</span>
+          </li>
+          <li>
+            <a href="ai/asset-hubs.html">Asset Hubs</a>
+            <span>Ai</span>
+          </li>
+          <li>
+            <a href="ai/execution-tools.html">Execution Tools</a>
+            <span>Ai</span>
+          </li>
+          <li>
+            <a href="ai/agent-and-application-orchestration.html">Agent And Application Orchestration</a>
+            <span>Ai</span>
+          </li>
+          <li>
+            <a href="ai/rag-retrieval-augmented-generation.html">RAG (Retrieval-Augmented Generation)</a>
+            <span>Ai</span>
+          </li>
+          <li>
+            <a href="devops-interview-prep/devops-screening-cheat-sheet.html">DevOps Screening Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          </ul>
+        </div>
       </section>
     </main>
+    <script src="assets/site.js" defer></script>
 </body>
 </html>
