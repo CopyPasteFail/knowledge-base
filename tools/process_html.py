@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from typing import TypedDict
 import html
 import re
 import shutil
@@ -15,6 +16,22 @@ SOURCE_ASSETS_DIR = REPO_ROOT / "assets"
 OUTPUT_ASSETS_DIR = OUTPUT_DIR / "assets"
 
 GENERATED_MARKER = "<!-- generated-by: tools/process_html.py -->"
+
+
+class TocItem(TypedDict):
+    level: str
+    title: str
+    id: str
+
+
+class ArticleEntry(TypedDict):
+    source_path: Path
+    source_name: str
+    output_path: Path
+    output_name: str
+    output_relpath: str
+    title: str
+    section: str
 
 
 def slugify_filename(filename: str) -> str:
@@ -406,8 +423,8 @@ def unique_slug(text: str, used: set[str]) -> str:
     return slug
 
 
-def add_heading_ids_and_collect_toc(content: str) -> tuple[str, list[dict[str, str]]]:
-    toc: list[dict[str, str]] = []
+def add_heading_ids_and_collect_toc(content: str) -> tuple[str, list[TocItem]]:
+    toc: list[TocItem] = []
     used: set[str] = set()
 
     def replace_heading(match: re.Match[str]) -> str:
@@ -467,29 +484,29 @@ def render_page(title: str, prefix: str, body_class: str, content: str) -> str:
 """
 
 
-def flatten_entries(grouped_entries: dict[str, list[dict]]) -> list[dict]:
-    entries: list[dict] = []
+def flatten_entries(grouped_entries: dict[str, list[ArticleEntry]]) -> list[ArticleEntry]:
+    entries: list[ArticleEntry] = []
     for section_slug in sorted(grouped_entries.keys()):
         entries.extend(sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()))
     return entries
 
 
-def entry_href(entry: dict, current_section: str | None, prefix: str) -> str:
+def entry_href(entry: ArticleEntry, current_section: str | None, prefix: str) -> str:
     if current_section == entry["section"]:
         return html.escape(entry["output_name"])
     return html.escape(f"{prefix}{entry['output_relpath']}")
 
 
 def render_article_tree(
-    grouped_entries: dict[str, list[dict]],
+    grouped_entries: dict[str, list[ArticleEntry]],
     current_section: str | None,
     current_output: str | None,
     prefix: str,
 ) -> str:
-    sections = []
+    sections: list[str] = []
     for section_slug in sorted(grouped_entries.keys()):
         section_title = html.escape(humanize_slug(section_slug))
-        items = []
+        items: list[str] = []
         for entry in sorted(grouped_entries[section_slug], key=lambda item: item["title"].lower()):
             active = entry["section"] == current_section and entry["output_name"] == current_output
             class_name = "tree-link is-active" if active else "tree-link"
@@ -521,14 +538,14 @@ def render_article_tree(
       </aside>"""
 
 
-def render_toc(toc: list[dict[str, str]]) -> str:
+def render_toc(toc: list[TocItem]) -> str:
     if not toc:
         return """      <aside class="toc-panel" aria-label="On this page">
         <div class="toc-title">On this page</div>
         <p class="toc-empty">No section headings</p>
       </aside>"""
 
-    links = []
+    links: list[str] = []
     for item in toc:
         title = html.escape(item["title"])
         href = html.escape(f'#{item["id"]}')
@@ -542,12 +559,12 @@ def render_toc(toc: list[dict[str, str]]) -> str:
       </aside>"""
 
 
-def render_prev_next(all_entries: list[dict], current_entry: dict) -> str:
+def render_prev_next(all_entries: list[ArticleEntry], current_entry: ArticleEntry) -> str:
     index = all_entries.index(current_entry)
     previous_entry = all_entries[index - 1] if index > 0 else None
     next_entry = all_entries[index + 1] if index + 1 < len(all_entries) else None
 
-    def item(label: str, entry: dict | None, direction: str) -> str:
+    def item(label: str, entry: ArticleEntry | None, direction: str) -> str:
         if not entry:
             return f'<span class="pager-link is-disabled"><span>{label}</span><strong>{direction}</strong></span>'
         href = html.escape(f"../{entry['output_relpath']}")
@@ -560,9 +577,9 @@ def render_prev_next(all_entries: list[dict], current_entry: dict) -> str:
 
 
 def render_article_page(
-    entry: dict,
-    grouped_entries: dict[str, list[dict]],
-    all_entries: list[dict],
+    entry: ArticleEntry,
+    grouped_entries: dict[str, list[ArticleEntry]],
+    all_entries: list[ArticleEntry],
 ) -> str:
     source_path = entry["source_path"]
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
@@ -637,7 +654,7 @@ def copy_assets_directory() -> None:
     shutil.copytree(SOURCE_ASSETS_DIR, OUTPUT_ASSETS_DIR)
 
 
-def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
+def write_output_file(source_path: Path, output_path: Path, depth: int) -> ArticleEntry:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
     processed_html = strip_embedded_styling(original_html)
     processed_html = strip_evernote_checklists(processed_html)
@@ -655,7 +672,9 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> dict:
     title = extract_title(processed_html, output_path.name)
 
     return {
+        "source_path": source_path,
         "source_name": source_path.name,
+        "output_path": output_path,
         "output_name": output_path.name,
         "output_relpath": output_path.relative_to(OUTPUT_DIR).as_posix(),
         "title": title,
@@ -680,12 +699,12 @@ def remove_stale_generated_files(expected_paths: set[str]) -> None:
 
 def generate_section_index(
     section_slug: str,
-    entries: list[dict],
-    grouped_entries: dict[str, list[dict]],
+    entries: list[ArticleEntry],
+    grouped_entries: dict[str, list[ArticleEntry]],
 ) -> None:
     section_dir = OUTPUT_DIR / section_slug
 
-    items = []
+    items: list[str] = []
     for entry in sorted(entries, key=lambda item: item["title"].lower()):
         title = html.escape(entry["title"])
         href = html.escape(entry["output_name"])
@@ -711,7 +730,7 @@ def generate_section_index(
         <header class="section-header">
           <p class="eyebrow">Category</p>
           <h1>{section_title}</h1>
-          <p>Browse the generated notes in this collection.</p>
+          <p>Browse the notes in this collection.</p>
         </header>
         <label class="section-filter">
           <span>Filter this category</span>
@@ -727,8 +746,8 @@ def generate_section_index(
     (section_dir / "index.html").write_text(page, encoding="utf-8")
 
 
-def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
-    sections_html = []
+def generate_root_index(grouped_entries: dict[str, list[ArticleEntry]]) -> None:
+    sections_html: list[str] = []
     all_entries = flatten_entries(grouped_entries)
 
     for section_slug in sorted(grouped_entries.keys()):
@@ -741,12 +760,12 @@ def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
             f"""          <a class="topic-card" href="{section_href}">
             <span class="topic-icon">{section_title[:2].upper()}</span>
             <strong>{section_title}</strong>
-            <span>{count} generated {"article" if count == 1 else "articles"}</span>
+            <span>{count} {"article" if count == 1 else "articles"}</span>
             <small>Start with {html.escape(sample)}</small>
           </a>"""
         )
 
-    search_items = []
+    search_items: list[str] = []
     for entry in all_entries:
         title = html.escape(entry["title"])
         section = html.escape(humanize_slug(entry["section"]))
@@ -758,31 +777,14 @@ def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
           </li>"""
         )
 
-    quick_links = []
-    for entry in sorted(all_entries, key=lambda item: (len(item["title"]), item["title"].lower()))[:8]:
-        quick_links.append(
-            f'<a class="chip" href="{html.escape(entry["output_relpath"])}">{html.escape(entry["title"])}</a>'
-        )
-
-    recent_items = []
-    for entry in sorted(all_entries, key=lambda item: item["source_path"].stat().st_mtime, reverse=True)[:6]:
-        recent_items.append(
-            f"""          <li>
-            <a href="{html.escape(entry["output_relpath"])}">{html.escape(entry["title"])}</a>
-            <span>{html.escape(humanize_slug(entry["section"]))}</span>
-          </li>"""
-        )
-
     sections_block = "\n".join(sections_html) if sections_html else "          <p>No sections found</p>"
     search_block = "\n".join(search_items) if search_items else "          <li>No documents found</li>"
-    quick_links_block = "\n".join(quick_links)
-    recent_block = "\n".join(recent_items)
 
     page_body = f"""    <main class="home-shell">
       <section class="search-hero" aria-labelledby="home-title">
         <p class="eyebrow">Static developer knowledge base</p>
         <h1 id="home-title">DevBrain</h1>
-        <p class="intro">Search and browse generated notes from <code>raw-html/</code>.</p>
+        <p class="intro">Search and browse notes from <code>raw-html/</code>.</p>
         <label class="global-search">
           <span>Search documentation</span>
           <input type="search" placeholder="Search notes, topics, and source files..." data-search-input autofocus>
@@ -801,23 +803,6 @@ def generate_root_index(grouped_entries: dict[str, list[dict]]) -> None:
         </div>
         <div class="topic-grid">
 {sections_block}
-        </div>
-      </section>
-
-      <section class="home-section two-column">
-        <div>
-          <p class="eyebrow">Generated</p>
-          <h2>Quick links</h2>
-          <div class="chip-row">
-{quick_links_block}
-          </div>
-        </div>
-        <div>
-          <p class="eyebrow">Deterministic</p>
-          <h2>Recent updates</h2>
-          <ul class="recent-list">
-{recent_block}
-          </ul>
         </div>
       </section>
     </main>"""
@@ -839,7 +824,7 @@ def main() -> None:
     )
 
     section_name_usage: dict[str, set[str]] = defaultdict(set)
-    grouped_entries: dict[str, list[dict]] = defaultdict(list)
+    grouped_entries: dict[str, list[ArticleEntry]] = defaultdict(list)
 
     for source_path in source_files:
         relative_source = source_path.relative_to(SOURCE_DIR)
@@ -858,7 +843,7 @@ def main() -> None:
         output_path = OUTPUT_DIR / section_slug / output_name
         original_html = source_path.read_text(encoding="utf-8", errors="ignore")
         title = extract_title(original_html, output_name)
-        entry = {
+        entry: ArticleEntry = {
             "source_path": source_path,
             "source_name": source_path.name,
             "output_path": output_path,

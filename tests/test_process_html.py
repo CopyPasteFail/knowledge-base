@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
+from pathlib import Path
 import shutil
 
 import pytest
@@ -8,7 +10,7 @@ from tools import process_html
 
 
 @pytest.fixture()
-def isolated_site(tmp_path, monkeypatch):
+def isolated_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     source_dir = tmp_path / "raw-html"
     output_dir = tmp_path / "docs"
     assets_dir = tmp_path / "assets"
@@ -57,7 +59,9 @@ def isolated_site(tmp_path, monkeypatch):
     shutil.rmtree(tmp_path, ignore_errors=True)
 
 
-def test_generator_preserves_static_urls_and_adds_devbrain_shell(isolated_site):
+def test_generator_preserves_static_urls_and_adds_devbrain_shell(
+    isolated_site: Path,
+):
     process_html.main()
 
     assert (isolated_site / "ai" / "execution-tools.html").exists()
@@ -85,7 +89,9 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(isolated_site):
     assert "<icons>" not in article
 
 
-def test_homepage_contains_lightweight_search_index_and_deterministic_sections(isolated_site):
+def test_homepage_contains_lightweight_search_index_and_deterministic_sections(
+    isolated_site: Path,
+):
     process_html.main()
 
     homepage = (isolated_site / "index.html").read_text(encoding="utf-8")
@@ -99,4 +105,5 @@ def test_homepage_contains_lightweight_search_index_and_deterministic_sections(i
     assert 'data-search-item data-title="Execution Tools"' in homepage
     assert 'href="ai/execution-tools.html"' in homepage
     assert 'href="devops-interview-prep/devops-screening-cheat-sheet.html"' in homepage
-    assert "Recent updates" in homepage
+    assert "Recent updates" not in homepage
+    assert "Quick links" not in homepage
