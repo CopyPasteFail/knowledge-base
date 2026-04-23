@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Observability Stack Summary · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation">
+        <div class="desktop-docs-nav">
+          <div class="sidebar-kicker">Documentation</div>
+        <section class="tree-section">
+          <h2>Ai</h2>
+          <ul>
+          <li><a href="../ai/agent-and-application-orchestration.html" class="tree-link">Agent And Application Orchestration</a></li>
+          <li><a href="../ai/ai-safety-sycophantic-misaligned-and-adversarial.html" class="tree-link">AI Safety - Sycophantic, Misaligned, and Adversarial</a></li>
+          <li><a href="../ai/asset-hubs.html" class="tree-link">Asset Hubs</a></li>
+          <li><a href="../ai/execution-tools.html" class="tree-link">Execution Tools</a></li>
+          <li><a href="../ai/local-cli-and-agentic-llm-tools.html" class="tree-link">Local, CLI, and Agentic LLM Tools</a></li>
+          <li><a href="../ai/rag-retrieval-augmented-generation.html" class="tree-link">RAG (Retrieval-Augmented Generation)</a></li>
+          <li><a href="../ai/useful-agent-skills-repos.html" class="tree-link">Useful Agent Skills Repos</a></li>
+          </ul>
+        </section>
+        <section class="tree-section">
+          <h2>Devops Interview Prep</h2>
+          <ul>
+          <li><a href="database-architecture-design.html" class="tree-link">Database Architecture &amp; Design</a></li>
+          <li><a href="devops-screening-cheat-sheet.html" class="tree-link">DevOps Screening Cheat-sheet</a></li>
+          <li><a href="kafka-cheat-sheet.html" class="tree-link">Kafka – Cheat-sheet</a></li>
+          <li><a href="observability-stack-summary.html" class="tree-link is-active">Observability Stack Summary</a></li>
+          </ul>
+        </section>
+        </div>
+        <details class="mobile-docs-nav">
+          <summary class="mobile-docs-summary">Documentation</summary>
+          <div class="mobile-docs-content">
+        <section class="tree-section">
+          <h2>Ai</h2>
+          <ul>
+          <li><a href="../ai/agent-and-application-orchestration.html" class="tree-link">Agent And Application Orchestration</a></li>
+          <li><a href="../ai/ai-safety-sycophantic-misaligned-and-adversarial.html" class="tree-link">AI Safety - Sycophantic, Misaligned, and Adversarial</a></li>
+          <li><a href="../ai/asset-hubs.html" class="tree-link">Asset Hubs</a></li>
+          <li><a href="../ai/execution-tools.html" class="tree-link">Execution Tools</a></li>
+          <li><a href="../ai/local-cli-and-agentic-llm-tools.html" class="tree-link">Local, CLI, and Agentic LLM Tools</a></li>
+          <li><a href="../ai/rag-retrieval-augmented-generation.html" class="tree-link">RAG (Retrieval-Augmented Generation)</a></li>
+          <li><a href="../ai/useful-agent-skills-repos.html" class="tree-link">Useful Agent Skills Repos</a></li>
+          </ul>
+        </section>
+        <section class="tree-section">
+          <h2>Devops Interview Prep</h2>
+          <ul>
+          <li><a href="database-architecture-design.html" class="tree-link">Database Architecture &amp; Design</a></li>
+          <li><a href="devops-screening-cheat-sheet.html" class="tree-link">DevOps Screening Cheat-sheet</a></li>
+          <li><a href="kafka-cheat-sheet.html" class="tree-link">Kafka – Cheat-sheet</a></li>
+          <li><a href="observability-stack-summary.html" class="tree-link is-active">Observability Stack Summary</a></li>
+          </ul>
+        </section>
+          </div>
+        </details>
+      </aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Devops Interview Prep</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Devops Interview Prep</p>
+          <h1>Observability Stack Summary</h1>
+          <p class="article-meta">Source: Observability Stack Summary.html</p>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="Observability Stack Summary">
+      
+      
+          </div><h2 nodeid="e3e4621b-4c10-4207-a9b3-33e849c30799" id="data-types-and-core-needs">Data types and core needs</h2><ol role="list"><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><b><div class="list-counter"></div></b></div><div><div class="para"><b>Metrics</b>
+Numeric measurements sampled over time - think CPU usage percentage, requests per second, or error rates - that let you track trends and set alerts.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><b><div class="list-counter"></div></b></div><div><div class="para"><b>Logs</b>
+Time-stamped, structured or free-form text records of events or actions - like web server access lines or application error stacks - that help you diagnose what happened.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><b><div class="list-counter"></div></b></div><div><div class="para"><b>Traces</b>
+Chains of timed spans representing a single transaction’s path through multiple services - e.g. HTTP request → auth service → database call, with per-span latency - so you can pinpoint where delays occur.</div></div></li></ol><h2 nodeid="3818cf12-8efc-40f3-b48f-6020d4df69bd" id="instrumentation-collection-opentelemetry">Instrumentation &amp; collection: OpenTelemetry</h2><ul role="list"><li><div><div class="para"><b>OpenTelemetry SDKs</b>
+Embed in your code (Java, Python, Go, JavaScript etc.) to emit traces, custom metrics and enriched logs in a standard format.</div></div></li><li><div><div class="para"><b>OpenTelemetry Collector</b>
+Acts as a unified agent or gateway: receives, batches and optionally transforms all three telemetry types.
+It can replace lightweight collectors (Promtail, Fluentd) or push gateways by exporting via Prometheus remote-write, Loki HTTP API, Jaeger/Tempo gRPC, Kafka, and more.</div></div></li><li><div><div class="para"><b>Does not replace</b>
+Storage backends (Prometheus, Loki, Elasticsearch, Jaeger, Tempo) or UIs (Grafana, Kibana) - those remain your systems of record and visualization.</div></div></li></ul><h2 nodeid="9146d273-dab7-4209-92fb-53ed7e47ec42" id="metrics-prometheus-and-grafana">Metrics: Prometheus and Grafana</h2><ul role="list"><li><div><div class="para"><b>Prometheus</b>
+Scrapes <code class="qwLsO O_pm7" spellcheck="false">/metrics</code> endpoints or a Pushgateway, stores time series on disk, and runs PromQL queries.</div></div></li><li><div><div class="para"><b>Grafana</b>
+Builds dashboards and alert rules on top of Prometheus (and other data sources).</div></div></li><li><div><div class="para"><b>Alternatives</b>
+VictoriaMetrics, Thanos or Cortex for long-term or highly available metric storage; Graphite + Grafana; InfluxDB + Chronograf.</div></div></li></ul><h2 nodeid="96e9283d-860b-4d02-a934-daafc59f37d2" id="logs-promtail-fluentd-logstash-loki-and-ot-collector">Logs: Promtail, Fluentd, Logstash, Loki and OT Collector</h2><ul role="list"><li><div><div class="para"><b>Promtail</b>
+Tails log files or accepts syslog, attaches labels (e.g. Kubernetes metadata) and ships straight to Loki.</div></div></li><li><div><div class="para"><b>Fluentd / Fluent Bit</b>
+General-purpose log/event forwarders with plugin ecosystems; send to Loki, Elasticsearch, Kafka etc.</div></div></li><li><div><div class="para"><b>Logstash</b>
+Heavy-weight ETL pipeline: ingest, parse (grok), enrich and route logs/events to Elasticsearch, Kafka and more.</div></div></li><li><div><div class="para"><b>Grafana Loki</b>
+“Prometheus for logs” - indexes only labels to keep storage costs low; integrates natively with Grafana.</div></div></li><li><div><div class="para"><b>OT (OpenTelemetry) Collector</b>
+Can ingest logs (alongside metrics and traces) and forward to any compatible backend.</div></div></li></ul><h2 nodeid="12732224-bd33-4dac-b470-c9028b00063e" id="traces-and-distributed-telemetry">Traces and distributed telemetry</h2><ul role="list"><li><div><div class="para"><b>OpenTelemetry SDK &amp; Collector</b>
+Instrumentation and transport for spans in a vendor-neutral format.</div></div></li><li><div><div class="para"><b>Jaeger or Tempo</b>
+Stores and visualizes traces (flame graphs, span details).</div></div></li><li><div><div class="para"><b>Alternatives</b>
+Zipkin; commercial APMs (Datadog, New Relic, Lightstep).</div></div></li></ul><h2 nodeid="13568910-eb06-42cc-bcc7-cd7bc70297d0" id="streaming-and-buffering-kafka-zookeeper-kraft">Streaming and buffering: Kafka (+ Zookeeper / KRaft)</h2><ul role="list"><li><div><div class="para"><b>Kafka</b>
+High-throughput event bus for buffering and fan-out of telemetry.</div></div></li><li><div><div class="para"><b>Zookeeper or KRaft</b>
+Manages broker metadata and consumer groups (KRaft can replace Zookeeper in newer Kafka versions).</div></div></li><li><div><div class="para"><b>Alternatives</b>
+RabbitMQ, NATS, Pulsar; managed services like Amazon Kinesis or Google Pub/Sub.</div></div></li></ul><h2 nodeid="1bf1fdad-ae3c-49c1-a068-b4e1ea64e10e" id="use-case-recipes">Use-Case Recipes</h2><h3 nodeid="9bd1180c-dd88-4af4-8241-bfc50de5d504" id="basic-metrics-monitoring">Basic Metrics Monitoring</h3><div class="para"><b>Goal:</b> Track service health and fire alerts.</div><ul role="list"><li><div><div class="para">(Optional) Add OpenTelemetry SDK counters/gauges and expose <code class="qwLsO O_pm7" spellcheck="false">/metrics</code>.</div></div></li><li><div><div class="para">Prometheus scrapes app and node exporters.</div></div></li><li><div><div class="para">Grafana dashboards use PromQL (e.g. <code class="qwLsO O_pm7" spellcheck="false">rate(http_requests_total[5m])</code>).</div></div></li><li><div><div class="para">Alert on thresholds via Grafana notification channels.</div></div></li></ul><div class="para"><b>Gotchas:</b> Ensure service discovery for scrape targets and secure <code class="qwLsO O_pm7" spellcheck="false">/metrics</code> endpoints.</div><h3 nodeid="7058d400-e52f-422a-809c-52a28ab60b42" id="lightweight-logs-metrics-correlation">Lightweight Logs + Metrics Correlation</h3><div class="para"><b>Goal:</b> Link simple logs with metric spikes at low cost.</div><ul role="list"><li><div><div class="para">Promtail DaemonSet tails <code class="qwLsO O_pm7" spellcheck="false">/var/log/containers/*.log</code>, labels by namespace/pod.</div></div></li><li><div><div class="para">Promtail pushes to Loki (<code class="qwLsO O_pm7" spellcheck="false">/loki/api/v1/push</code>).</div></div></li><li><div><div class="para">Prometheus scrapes metrics as above.</div></div></li><li><div><div class="para">Grafana mixed panels show metric time series alongside log streams (<code class="qwLsO O_pm7" spellcheck="false">{app="myapp", level="error"}</code>).</div></div></li></ul><div class="para"><b>Gotchas:</b> Plan Loki labels well; Promtail needs file-read permissions.</div><h3 nodeid="446160aa-cb09-46db-a74c-bfdf3fec8770" id="full-stack-observability-for-microservices">Full-Stack Observability for Microservices</h3><div class="para"><b>Goal:</b> End-to-end traces, metrics and logs.</div><ul role="list"><li><div><div class="para">Instrument services with OpenTelemetry SDK (or auto-instrument).</div></div></li><li><div><div class="para">Deploy Collector with pipelines for OTLP → Prometheus, Loki and Jaeger exporters.</div></div></li><li><div><div class="para">(Optional) Buffer bursts via Collector → Kafka → downstream exporters.</div></div></li><li><div><div class="para">Prometheus scrapes Collector; Loki and Jaeger receive logs and spans.</div></div></li><li><div><div class="para">Grafana dashboards combine metrics, log panels and trace timelines.</div></div></li></ul><div class="para"><b>Gotchas:</b> Tune Collector batch sizes/limits and choose an appropriate trace sampling rate.</div><h3 nodeid="0ea8dc4e-3863-4382-bfcc-955a47082ae1" id="high-volume-iot-telemetry">High-Volume IoT Telemetry</h3><div class="para"><b>Goal:</b> Ingest millions of device metrics/logs reliably.</div><ul role="list"><li><div><div class="para">Edge Collector receives OTLP (OpenTelemetry Protocol) or HTTP from devices, adds device metadata.</div></div></li><li><div><div class="para">Collector exports to Kafka topic <code class="qwLsO O_pm7" spellcheck="false">iot-telemetry</code>.</div></div></li><li><div><div class="para">Consumers read from Kafka:</div></div></li><ul role="list"><li><div><div class="para">Prometheus remote-write (or Thanos) for metrics</div></div></li><li><div><div class="para">Fluentd for logs → Loki or Elasticsearch</div></div></li><li><div><div class="para">Collector for traces → Tempo</div></div></li></ul><li><div><div class="para">Grafana device health maps, global trends, error heatmaps and trace explorer.</div></div></li></ul><div class="para"><b>Gotchas:</b> Partition Kafka by region; tune retention and compaction.</div><h3 nodeid="33c603e9-f594-4e37-abb7-30fc8bcccc3f" id="heavy-log-processing-pipeline">Heavy Log-Processing Pipeline</h3><div class="para"><b>Goal:</b> Multi-stage parsing, enrichment and routing to multiple sinks.</div><ul role="list"><li><div><div class="para">Logstash ingest via Beats input, apply grok, geoip, mutate filters.</div></div></li><li><div><div class="para">Output to Elasticsearch for full-text search and to Kafka for real-time consumers.</div></div></li><li><div><div class="para">Optionally use Fluentd/Logstash to consume from Kafka → normalize → push to Loki.</div></div></li><li><div><div class="para">Kibana for ad-hoc searches; Grafana + Loki panels for dashboards and log-based alerts.</div></div></li></ul><div class="para"><b>Gotchas:</b> Allocate sufficient JVM heap for Logstash; manage Elasticsearch index lifecycles.</div><h2 nodeid="6c351627-0554-495f-8d3d-b25b3f25317f" id="key-overlaps-and-alternatives">Key overlaps and alternatives</h2><ul role="list"><li><div><div class="para"><b>Logstash vs Fluentd vs OT Collector</b> for log ingestion and transformation</div></div></li><li><div><div class="para"><b>Prometheus Pushgateway vs OT Collector</b> for pushed metrics</div></div></li><li><div><div class="para"><b>Zookeeper vs KRaft</b> as Kafka coordinator</div></div></li><li><div><div class="para"><b>Loki vs Elasticsearch</b> for log indexing and querying</div></div></li></ul><hr><div class="para"><b>Bottom line:</b> Standardize on OpenTelemetry for unified instrumentation and collection, then choose storage backends - Prometheus for metrics, Loki or Elasticsearch for logs, Jaeger/Tempo for traces - and visualize and alert on everything in Grafana (and Kibana where needed).</div><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../devops-interview-prep/kafka-cheat-sheet.html"><span>Previous</span><strong>Kafka – Cheat-sheet</strong></a>
+          <span class="pager-link is-disabled"><span>Next</span><strong>End</strong></span>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#data-types-and-core-needs">Data types and core needs</a></li>
+          <li class="toc-level-2"><a href="#instrumentation-collection-opentelemetry">Instrumentation &amp; collection: OpenTelemetry</a></li>
+          <li class="toc-level-2"><a href="#metrics-prometheus-and-grafana">Metrics: Prometheus and Grafana</a></li>
+          <li class="toc-level-2"><a href="#logs-promtail-fluentd-logstash-loki-and-ot-collector">Logs: Promtail, Fluentd, Logstash, Loki and OT Collector</a></li>
+          <li class="toc-level-2"><a href="#traces-and-distributed-telemetry">Traces and distributed telemetry</a></li>
+          <li class="toc-level-2"><a href="#streaming-and-buffering-kafka-zookeeper-kraft">Streaming and buffering: Kafka (+ Zookeeper / KRaft)</a></li>
+          <li class="toc-level-2"><a href="#use-case-recipes">Use-Case Recipes</a></li>
+          <li class="toc-level-3"><a href="#basic-metrics-monitoring">Basic Metrics Monitoring</a></li>
+          <li class="toc-level-3"><a href="#lightweight-logs-metrics-correlation">Lightweight Logs + Metrics Correlation</a></li>
+          <li class="toc-level-3"><a href="#full-stack-observability-for-microservices">Full-Stack Observability for Microservices</a></li>
+          <li class="toc-level-3"><a href="#high-volume-iot-telemetry">High-Volume IoT Telemetry</a></li>
+          <li class="toc-level-3"><a href="#heavy-log-processing-pipeline">Heavy Log-Processing Pipeline</a></li>
+          <li class="toc-level-2"><a href="#key-overlaps-and-alternatives">Key overlaps and alternatives</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>
