@@ -1,4 +1,9 @@
+# Default to LF so scripts, generated docs, and source files stay Linux-compatible.
 * text=auto eol=lf
 
+# Windows-only scripts should keep CRLF for native Windows tooling.
 *.bat text eol=crlf
 *.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
