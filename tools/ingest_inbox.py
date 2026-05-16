@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -190,6 +192,7 @@ def powershell_delete_commands(path: Path) -> str:
     cmd_path = windows_relative_path(path)
     return (
         "Cleanup command after closing the preview/file handle:\n"
+        f'  attrib -R "{ps_path}" /S /D\n'
         f'  Remove-Item -Recurse -Force "{ps_path}" -ErrorAction SilentlyContinue\n'
         f'  cmd /c rmdir /s /q "{cmd_path}"'
     )
@@ -200,10 +203,25 @@ def locked_asset_folder_message(path: Path, action: str, *, folder_kind: str) ->
     return (
         f"Could not {action} {folder_kind}: {rel_path}\n"
         "This usually means the local preview HTML, an image, Explorer preview pane, or another process is still using it.\n"
+        "If nothing is open, the folder may still have Windows read-only attributes or a transient file handle.\n"
         "Close any browser tabs or file previews that point at this page/folder, then run the cleanup command below.\n\n"
         f"{powershell_delete_commands(path)}\n\n"
         "Then rerun the ingest command."
     )
+
+
+def clear_readonly_and_retry(function: object, path: str, _exc_info: object) -> None:
+    os.chmod(path, stat.S_IWRITE)
+    function(path)
+
+
+def remove_tree(path: Path, *, folder_kind: str) -> None:
+    try:
+        shutil.rmtree(path, onerror=clear_readonly_and_retry)
+    except PermissionError as exc:
+        raise SystemExit(locked_asset_folder_message(path, "delete", folder_kind=folder_kind)) from exc
+    except OSError as exc:
+        raise SystemExit(locked_asset_folder_message(path, "delete", folder_kind=folder_kind) + f"\nOriginal error: {exc}") from exc
 
 
 def clear_directory_contents(path: Path) -> None:
@@ -211,8 +229,9 @@ def clear_directory_contents(path: Path) -> None:
     for child in path.iterdir():
         try:
             if child.is_dir():
-                shutil.rmtree(child)
+                remove_tree(child, folder_kind="generated preview asset folder")
             else:
+                child.chmod(stat.S_IWRITE)
                 child.unlink()
         except PermissionError as exc:
             raise SystemExit(
@@ -634,15 +653,10 @@ def cleanup_inbox(files: list[Path]) -> None:
 
         if asset_dir and asset_dir.exists():
             try:
-                shutil.rmtree(asset_dir)
+                remove_tree(asset_dir, folder_kind="local inbox asset folder")
                 print(f"Deleted {asset_dir.relative_to(REPO_ROOT).as_posix()}")
-            except PermissionError:
-                print(locked_asset_folder_message(asset_dir, "delete", folder_kind="local inbox asset folder"))
-            except OSError as exc:
-                print(
-                    locked_asset_folder_message(asset_dir, "delete", folder_kind="local inbox asset folder")
-                    + f"\nOriginal error: {exc}"
-                )
+            except SystemExit as exc:
+                print(exc)
 
 
 def parse_args() -> argparse.Namespace:
