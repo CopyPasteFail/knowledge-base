@@ -177,14 +177,38 @@ def rewrite_asset_references(html_text: str, item: PlannedIngest) -> str:
     return attr_pattern.sub(replace, html_text)
 
 
+def locked_asset_folder_message(path: Path, action: str) -> str:
+    rel_path = path.relative_to(REPO_ROOT).as_posix() if path.is_relative_to(REPO_ROOT) else str(path)
+    return (
+        f"Could not {action} generated asset folder: {rel_path}\n"
+        "This usually means the local preview HTML, an image, Explorer preview pane, or another process is still using it.\n"
+        "Close any browser tabs or file previews that point at this generated page/folder, then rerun the command."
+    )
+
+
 def copy_article_assets(item: PlannedIngest) -> Path | None:
     if not item.asset_source_dir or not item.asset_output_dir:
         return None
 
     if item.asset_output_dir.exists():
-        shutil.rmtree(item.asset_output_dir)
+        try:
+            shutil.rmtree(item.asset_output_dir)
+        except PermissionError as exc:
+            raise SystemExit(locked_asset_folder_message(item.asset_output_dir, "replace")) from exc
+        except OSError as exc:
+            raise SystemExit(
+                locked_asset_folder_message(item.asset_output_dir, "replace") + f"\nOriginal error: {exc}"
+            ) from exc
 
-    shutil.copytree(item.asset_source_dir, item.asset_output_dir)
+    try:
+        shutil.copytree(item.asset_source_dir, item.asset_output_dir)
+    except PermissionError as exc:
+        raise SystemExit(locked_asset_folder_message(item.asset_output_dir, "write")) from exc
+    except OSError as exc:
+        raise SystemExit(
+            locked_asset_folder_message(item.asset_output_dir, "write") + f"\nOriginal error: {exc}"
+        ) from exc
+
     return item.asset_output_dir
 
 
@@ -567,15 +591,20 @@ def cleanup_inbox(files: list[Path]) -> None:
             pass
 
         if asset_dir and asset_dir.exists():
-            shutil.rmtree(asset_dir)
-            print(f"Deleted {asset_dir.relative_to(REPO_ROOT).as_posix()}")
+            try:
+                shutil.rmtree(asset_dir)
+                print(f"Deleted {asset_dir.relative_to(REPO_ROOT).as_posix()}")
+            except PermissionError:
+                print(locked_asset_folder_message(asset_dir, "delete local inbox"))
+            except OSError as exc:
+                print(locked_asset_folder_message(asset_dir, "delete local inbox") + f"\nOriginal error: {exc}")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Ingest local Evernote HTML exports from inbox/ into docs/.")
     parser.add_argument("--yes", action="store_true", help="Approve without prompting.")
     parser.add_argument("--skip-open", action="store_true", help="Print preview links without opening the browser.")
-    parser.add_argument("--allow-dirty", action="store_true", help="Allow pre-existing working tree changes.")
+    parser.add_argument("--allow-dirty", action="store_true", help="Allow pre-existing working-tree changes.")
     parser.add_argument("--no-push", action="store_true", help="Commit locally but do not push.")
     parser.add_argument("--skip-workflow-check", action="store_true", help="Delete inbox files after push without verifying CI.")
     parser.add_argument(
