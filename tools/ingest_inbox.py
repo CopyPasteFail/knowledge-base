@@ -346,8 +346,14 @@ def open_previews(planned: list[PlannedIngest], skip_open: bool) -> None:
 def confirm(prompt: str, assume_yes: bool) -> bool:
     if assume_yes:
         return True
-    answer = input(f"{prompt} [y/N] ").strip().lower()
-    return answer in {"y", "yes"}
+
+    while True:
+        answer = input(f"{prompt} [y/n] ").strip().lower()
+        if answer in {"y", "yes"}:
+            return True
+        if answer in {"n", "no"}:
+            return False
+        print("Please type y or n.")
 
 
 def commit_and_push(message: str, no_push: bool) -> str | None:
