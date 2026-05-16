@@ -93,6 +93,7 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
 
     article = docs / "ai" / "execution-tools.html"
     nav_data = docs / "assets" / "navigation-data.js"
+    section_index = docs / "ai" / "index.html"
     assert article in written
     assert nav_data in written
     assert article.exists()
@@ -102,10 +103,16 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     assert "<en-note" not in article_html
     assert "data-docs-nav" in article_html
     assert "desktop-docs-nav" not in article_html
+    assert "Source:" not in article_html
+    assert "Execution Tools.html" not in article_html
+    section_html = section_index.read_text(encoding="utf-8")
+    assert "Source:" not in section_html
+    assert "Execution Tools.html" not in section_html
+    assert "Search notes and topics..." in (docs / "index.html").read_text(encoding="utf-8")
     nav_js = nav_data.read_text(encoding="utf-8")
     assert "window.DEVBRAIN_NAVIGATION" in nav_js
     assert "execution-tools.html" in nav_js
-    assert (docs / "ai" / "index.html").exists()
+    assert section_index.exists()
     assert (docs / "index.html").exists()
 
 
