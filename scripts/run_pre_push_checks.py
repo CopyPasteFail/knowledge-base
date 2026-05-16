@@ -15,10 +15,9 @@ def run_check(command: list[str]) -> None:
 
 
 def main() -> int:
-    run_check([sys.executable, "tools/process_html.py"])
-    run_check(["git", "diff", "--exit-code", "--", "docs", "assets"])
-    run_check([sys.executable, "-m", "ruff", "check", "tools"])
-    run_check([sys.executable, "-m", "compileall", "-q", "tools"])
+    run_check([sys.executable, "-m", "pytest"])
+    run_check([sys.executable, "-m", "ruff", "check", "tools", "tests"])
+    run_check([sys.executable, "-m", "compileall", "-q", "tools", "tests"])
     return 0
 
 
