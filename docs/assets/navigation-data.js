@@ -81,6 +81,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "deployments-vs-statefulsets-cheat-sheet.html"
         },
         {
+          "title": "DNS - Cheat-sheet",
+          "href": "devops-interview-prep/dns-cheat-sheet.html",
+          "output": "dns-cheat-sheet.html"
+        },
+        {
           "title": "EKS – Cheat-sheet",
           "href": "devops-interview-prep/eks-cheat-sheet.html",
           "output": "eks-cheat-sheet.html"
