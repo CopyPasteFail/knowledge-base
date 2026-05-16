@@ -107,3 +107,41 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     assert "execution-tools.html" in nav_js
     assert (docs / "ai" / "index.html").exists()
     assert (docs / "index.html").exists()
+
+
+def test_generate_copies_evernote_image_folder_and_rewrites_backslash_paths(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inbox, docs, _assets = configure_tmp_repo(tmp_path, monkeypatch)
+    source = inbox / "devops-interview-prep" / "DNS - Cheat-sheet.html"
+    asset_source = inbox / "devops-interview-prep" / "DNS - Cheat-sheet files"
+    asset_source.mkdir()
+    (asset_source / "dns-lookup-diagram.webp").write_bytes(b"fake-webp")
+    (asset_source / "image.png").write_bytes(b"fake-png")
+    source.write_text(
+        """<!doctype html>
+<html>
+<head><title>DNS - Cheat-sheet</title></head>
+<body>
+  <h1>DNS - Cheat-sheet</h1>
+  <p><img src="DNS - Cheat-sheet files\\dns-lookup-diagram.webp"></p>
+  <p><a href="DNS - Cheat-sheet files\\image.png">diagram</a></p>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    planned = ingest_inbox.plan_ingest([source])
+    written = ingest_inbox.generate(planned)
+
+    article = docs / "devops-interview-prep" / "dns-cheat-sheet.html"
+    asset_output = docs / "devops-interview-prep" / "dns-cheat-sheet_files"
+    assert asset_output in written
+    assert (asset_output / "dns-lookup-diagram.webp").read_bytes() == b"fake-webp"
+    assert (asset_output / "image.png").read_bytes() == b"fake-png"
+    article_html = article.read_text(encoding="utf-8")
+    assert "DNS - Cheat-sheet files" not in article_html
+    assert "dns-cheat-sheet_files/dns-lookup-diagram.webp" in article_html
+    assert "dns-cheat-sheet_files/image.png" in article_html
