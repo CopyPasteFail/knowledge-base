@@ -23,6 +23,42 @@ inbox/devops-interview-prep/Kafka Cheat Sheet.html
 
 The `inbox/**/*.html` files are ignored by Git. Only `.gitkeep` files are tracked, so the folder structure stays in the repo without storing raw Evernote exports.
 
+## Evernote exports with images
+
+Evernote often exports a note as one HTML file plus a matching image folder:
+
+```text
+inbox/devops-interview-prep/DNS - Cheat-sheet.html
+inbox/devops-interview-prep/DNS - Cheat-sheet files/
+  dns-lookup-diagram.webp
+  image.png
+```
+
+Keep the HTML file and its matching image folder together in the same inbox section folder.
+
+During ingest, the script copies the image folder to the generated public section and renames it deterministically from the generated slug:
+
+```text
+inbox/devops-interview-prep/DNS - Cheat-sheet.html
+inbox/devops-interview-prep/DNS - Cheat-sheet files/
+-> docs/devops-interview-prep/dns-cheat-sheet.html
+-> docs/devops-interview-prep/dns-cheat-sheet_files/
+```
+
+The script also rewrites Evernote image links, including Windows-style backslash paths, so links like this:
+
+```html
+<img src="DNS - Cheat-sheet files\dns-lookup-diagram.webp">
+```
+
+become:
+
+```html
+<img src="dns-cheat-sheet_files/dns-lookup-diagram.webp">
+```
+
+When you overwrite the same note later, the generated image folder is replaced so removed or renamed images do not leave stale public files behind.
+
 ## Normal workflow
 
 From the repository root:
@@ -36,12 +72,13 @@ The script will:
 1. scan all `inbox/**/*.html` files
 2. validate section folders and filename collisions
 3. sanitize Evernote HTML using the existing generator cleanup logic
-4. write or overwrite generated public pages under `docs/<section>/`
-5. update affected section indexes, `docs/index.html`, and `docs/assets/navigation-data.js`
-6. print and open local `file:///` preview links
-7. ask for approval before committing and pushing
-8. wait for the GitHub workflow when the GitHub CLI is available
-9. delete local inbox HTML files only after a successful push and verified workflow
+4. copy matching Evernote image folders when present
+5. write or overwrite generated public pages under `docs/<section>/`
+6. update affected section indexes, `docs/index.html`, and `docs/assets/navigation-data.js`
+7. print and open local `file:///` preview links
+8. ask for approval before committing and pushing
+9. wait for the GitHub workflow when the GitHub CLI is available
+10. delete local inbox HTML files only after a successful push and verified workflow
 
 ## Updating an existing page
 
