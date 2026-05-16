@@ -206,35 +206,51 @@ def locked_asset_folder_message(path: Path, action: str, *, folder_kind: str) ->
     )
 
 
+def clear_directory_contents(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    for child in path.iterdir():
+        try:
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+        except PermissionError as exc:
+            raise SystemExit(
+                locked_asset_folder_message(child, "remove stale item from", folder_kind="generated preview asset folder")
+            ) from exc
+        except OSError as exc:
+            raise SystemExit(
+                locked_asset_folder_message(child, "remove stale item from", folder_kind="generated preview asset folder")
+                + f"\nOriginal error: {exc}"
+            ) from exc
+
+
+def copy_directory_contents(source: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    for child in source.iterdir():
+        target = destination / child.name
+        try:
+            if child.is_dir():
+                shutil.copytree(child, target)
+            else:
+                shutil.copy2(child, target)
+        except PermissionError as exc:
+            raise SystemExit(
+                locked_asset_folder_message(target, "write", folder_kind="generated preview asset folder")
+            ) from exc
+        except OSError as exc:
+            raise SystemExit(
+                locked_asset_folder_message(target, "write", folder_kind="generated preview asset folder")
+                + f"\nOriginal error: {exc}"
+            ) from exc
+
+
 def copy_article_assets(item: PlannedIngest) -> Path | None:
     if not item.asset_source_dir or not item.asset_output_dir:
         return None
 
-    if item.asset_output_dir.exists():
-        try:
-            shutil.rmtree(item.asset_output_dir)
-        except PermissionError as exc:
-            raise SystemExit(
-                locked_asset_folder_message(item.asset_output_dir, "replace", folder_kind="generated preview asset folder")
-            ) from exc
-        except OSError as exc:
-            raise SystemExit(
-                locked_asset_folder_message(item.asset_output_dir, "replace", folder_kind="generated preview asset folder")
-                + f"\nOriginal error: {exc}"
-            ) from exc
-
-    try:
-        shutil.copytree(item.asset_source_dir, item.asset_output_dir)
-    except PermissionError as exc:
-        raise SystemExit(
-            locked_asset_folder_message(item.asset_output_dir, "write", folder_kind="generated preview asset folder")
-        ) from exc
-    except OSError as exc:
-        raise SystemExit(
-            locked_asset_folder_message(item.asset_output_dir, "write", folder_kind="generated preview asset folder")
-            + f"\nOriginal error: {exc}"
-        ) from exc
-
+    clear_directory_contents(item.asset_output_dir)
+    copy_directory_contents(item.asset_source_dir, item.asset_output_dir)
     return item.asset_output_dir
 
 
