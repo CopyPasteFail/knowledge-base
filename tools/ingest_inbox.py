@@ -458,7 +458,8 @@ def main() -> int:
     generate(planned)
     open_previews(planned, args.skip_open)
 
-    if not confirm("Approve generated output and commit/push?", args.yes):
+    action = "commit locally" if args.no_push else "commit and push"
+    if not confirm(f"Approve generated output and {action}?", args.yes):
         print("Not approved. Generated files and inbox files were left in place for review or manual cleanup.")
         return 1
 
