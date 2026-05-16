@@ -354,6 +354,33 @@ def replace_embedded_nav(path: Path) -> None:
         path.write_text(updated, encoding="utf-8", newline="\n")
 
 
+def remove_public_source_metadata(path: Path) -> None:
+    html_text = path.read_text(encoding="utf-8", errors="ignore")
+    updated = process_html.re.sub(
+        r'\n\s*<p\b[^>]*class=["\'][^"\']*\barticle-meta\b[^"\']*["\'][^>]*>\s*Source:.*?</p>',
+        "",
+        html_text,
+        flags=process_html.re.IGNORECASE | process_html.re.DOTALL,
+    )
+    updated = process_html.re.sub(
+        r'\n\s*<span>\s*Source:.*?</span>',
+        "",
+        updated,
+        flags=process_html.re.IGNORECASE | process_html.re.DOTALL,
+    )
+    updated = updated.replace(
+        "Search notes, topics, and source files...",
+        "Search notes and topics...",
+    )
+    if updated != html_text:
+        path.write_text(updated, encoding="utf-8", newline="\n")
+
+
+def finalize_generated_page(path: Path) -> None:
+    replace_embedded_nav(path)
+    remove_public_source_metadata(path)
+
+
 def write_shared_data(grouped: dict[str, list[process_html.ArticleEntry]]) -> Path:
     assets_dir = DOCS_DIR / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
@@ -402,7 +429,7 @@ def generate(planned: list[PlannedIngest]) -> list[Path]:
             encoding="utf-8",
             newline="\n",
         )
-        replace_embedded_nav(entry["output_path"])
+        finalize_generated_page(entry["output_path"])
         written.append(entry["output_path"])
         copied_assets = copy_article_assets(item)
         if copied_assets:
@@ -412,11 +439,13 @@ def generate(planned: list[PlannedIngest]) -> list[Path]:
     for section in affected_sections:
         process_html.generate_section_index(section, grouped[section], grouped)
         section_index = DOCS_DIR / section / "index.html"
-        replace_embedded_nav(section_index)
+        finalize_generated_page(section_index)
         written.append(section_index)
 
     process_html.generate_root_index(grouped)
-    written.append(DOCS_DIR / "index.html")
+    root_index = DOCS_DIR / "index.html"
+    remove_public_source_metadata(root_index)
+    written.append(root_index)
     written.append(write_shared_data(grouped))
     return written
 
