@@ -92,11 +92,18 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     written = ingest_inbox.generate(planned)
 
     article = docs / "ai" / "execution-tools.html"
+    nav_data = docs / "assets" / "navigation-data.js"
     assert article in written
+    assert nav_data in written
     assert article.exists()
     article_html = article.read_text(encoding="utf-8")
     assert "Execution Tools" in article_html
     assert "Runtime choices" in article_html
     assert "<en-note" not in article_html
+    assert "data-docs-nav" in article_html
+    assert "desktop-docs-nav" not in article_html
+    nav_js = nav_data.read_text(encoding="utf-8")
+    assert "window.DEVBRAIN_NAVIGATION" in nav_js
+    assert "execution-tools.html" in nav_js
     assert (docs / "ai" / "index.html").exists()
     assert (docs / "index.html").exists()
