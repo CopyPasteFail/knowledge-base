@@ -45,6 +45,68 @@
       .replaceAll('"', "&quot;");
   }
 
+  function hasMeaningfulContent(element) {
+    return Boolean(
+      element.textContent.trim()
+      || element.querySelector("img, table, pre, code, iframe, video, audio, canvas, svg, a[href]"),
+    );
+  }
+
+  function removeEmptyContentContainers(articleContent) {
+    let changed = true;
+    let passes = 0;
+
+    while (changed && passes < 10) {
+      changed = false;
+      passes += 1;
+
+      articleContent.querySelectorAll("li, ul, ol, p, div").forEach((element) => {
+        if (!hasMeaningfulContent(element)) {
+          element.remove();
+          changed = true;
+        }
+      });
+    }
+  }
+
+  function removeEmptyHeadings(articleContent) {
+    Array.from(articleContent.querySelectorAll("h1, h2, h3, h4, h5, h6")).forEach((heading) => {
+      const level = Number(heading.tagName.slice(1));
+      let sibling = heading.nextElementSibling;
+
+      while (sibling && !hasMeaningfulContent(sibling)) {
+        const next = sibling.nextElementSibling;
+        sibling.remove();
+        sibling = next;
+      }
+
+      if (!sibling || /^H[1-6]$/.test(sibling.tagName) && Number(sibling.tagName.slice(1)) <= level) {
+        heading.remove();
+      }
+    });
+  }
+
+  function normalizeEvernoteInternalLinks() {
+    const articleContent = document.querySelector(".article-content");
+    if (!articleContent) {
+      return;
+    }
+
+    articleContent.querySelectorAll('a[href^="evernote://"]').forEach((link) => {
+      const listItem = link.closest("li");
+      if (listItem && listItem.textContent.trim() === link.textContent.trim()) {
+        listItem.remove();
+        return;
+      }
+
+      link.remove();
+    });
+
+    removeEmptyContentContainers(articleContent);
+    removeEmptyHeadings(articleContent);
+    removeEmptyContentContainers(articleContent);
+  }
+
   function normalizeEvernoteRichLinks() {
     document.querySelectorAll('[data-testid="default-richlink-viewer"]').forEach((card) => {
       const href = card.getAttribute("data-href") || card.querySelector("a[href]")?.getAttribute("href") || "";
@@ -126,6 +188,7 @@ ${sectionsHtml}
   }
 
   setTheme(root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : preferredTheme(), false);
+  normalizeEvernoteInternalLinks();
   normalizeEvernoteRichLinks();
   loadDocsNav();
 
