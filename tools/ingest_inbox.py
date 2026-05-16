@@ -559,11 +559,16 @@ def wait_for_workflow(commit_sha: str, skip_workflow_check: bool) -> bool:
 
 def cleanup_inbox(files: list[Path]) -> None:
     for file_path in files:
+        asset_dir = matching_asset_dir(file_path)
         try:
             file_path.unlink()
             print(f"Deleted {file_path.relative_to(REPO_ROOT).as_posix()}")
         except FileNotFoundError:
             pass
+
+        if asset_dir and asset_dir.exists():
+            shutil.rmtree(asset_dir)
+            print(f"Deleted {asset_dir.relative_to(REPO_ROOT).as_posix()}")
 
 
 def parse_args() -> argparse.Namespace:
