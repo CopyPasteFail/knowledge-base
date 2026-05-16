@@ -71,6 +71,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "cloud-architecture-fundamentals.html"
         },
         {
+          "title": "Cybersecurity - Cheat-sheet",
+          "href": "devops-interview-prep/cybersecurity-cheat-sheet.html",
+          "output": "cybersecurity-cheat-sheet.html"
+        },
+        {
           "title": "DB Architecture & Design - Cheat-sheet",
           "href": "devops-interview-prep/db-architecture-design-cheat-sheet.html",
           "output": "db-architecture-design-cheat-sheet.html"
@@ -104,6 +109,11 @@ window.DEVBRAIN_NAVIGATION = {
           "title": "Infra / OS Interview Q&A",
           "href": "devops-interview-prep/infra-os-interview-qa.html",
           "output": "infra-os-interview-qa.html"
+        },
+        {
+          "title": "Internet Networking - Cheat-sheet",
+          "href": "devops-interview-prep/internet-networking-cheat-sheet.html",
+          "output": "internet-networking-cheat-sheet.html"
         },
         {
           "title": "Kafka - Cheat-sheet",
