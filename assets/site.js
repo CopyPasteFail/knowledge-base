@@ -45,6 +45,23 @@
       .replaceAll('"', "&quot;");
   }
 
+  function normalizeEvernoteRichLinks() {
+    document.querySelectorAll('[data-testid="default-richlink-viewer"]').forEach((card) => {
+      const href = card.getAttribute("data-href") || card.querySelector("a[href]")?.getAttribute("href") || "";
+      const label = card.querySelector(".Hseq7")?.textContent?.trim() || href || card.textContent.trim();
+
+      if (!href || !label) {
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = href;
+      link.textContent = label;
+      link.rel = "noopener noreferrer";
+      card.replaceWith(link);
+    });
+  }
+
   function renderDocsNav() {
     const navData = window.DEVBRAIN_NAVIGATION;
     if (!navData || !Array.isArray(navData.sections)) {
@@ -109,6 +126,7 @@ ${sectionsHtml}
   }
 
   setTheme(root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : preferredTheme(), false);
+  normalizeEvernoteRichLinks();
   loadDocsNav();
 
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
