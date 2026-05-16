@@ -4,16 +4,20 @@ import argparse
 import json
 import shutil
 import subprocess
+import sys
 import time
 import webbrowser
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from tools import process_html
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 INBOX_DIR = REPO_ROOT / "inbox"
 DOCS_DIR = REPO_ROOT / "docs"
 
