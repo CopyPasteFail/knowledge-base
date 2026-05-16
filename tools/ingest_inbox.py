@@ -177,12 +177,32 @@ def rewrite_asset_references(html_text: str, item: PlannedIngest) -> str:
     return attr_pattern.sub(replace, html_text)
 
 
-def locked_asset_folder_message(path: Path, action: str) -> str:
-    rel_path = path.relative_to(REPO_ROOT).as_posix() if path.is_relative_to(REPO_ROOT) else str(path)
+def repo_relative_path(path: Path) -> str:
+    return path.relative_to(REPO_ROOT).as_posix() if path.is_relative_to(REPO_ROOT) else str(path)
+
+
+def windows_relative_path(path: Path) -> str:
+    return repo_relative_path(path).replace("/", "\\")
+
+
+def powershell_delete_commands(path: Path) -> str:
+    ps_path = f'.\\{windows_relative_path(path)}'
+    cmd_path = windows_relative_path(path)
     return (
-        f"Could not {action} generated asset folder: {rel_path}\n"
+        "Cleanup command after closing the preview/file handle:\n"
+        f'  Remove-Item -Recurse -Force "{ps_path}" -ErrorAction SilentlyContinue\n'
+        f'  cmd /c rmdir /s /q "{cmd_path}"'
+    )
+
+
+def locked_asset_folder_message(path: Path, action: str, *, folder_kind: str) -> str:
+    rel_path = repo_relative_path(path)
+    return (
+        f"Could not {action} {folder_kind}: {rel_path}\n"
         "This usually means the local preview HTML, an image, Explorer preview pane, or another process is still using it.\n"
-        "Close any browser tabs or file previews that point at this generated page/folder, then rerun the command."
+        "Close any browser tabs or file previews that point at this page/folder, then run the cleanup command below.\n\n"
+        f"{powershell_delete_commands(path)}\n\n"
+        "Then rerun the ingest command."
     )
 
 
@@ -194,19 +214,25 @@ def copy_article_assets(item: PlannedIngest) -> Path | None:
         try:
             shutil.rmtree(item.asset_output_dir)
         except PermissionError as exc:
-            raise SystemExit(locked_asset_folder_message(item.asset_output_dir, "replace")) from exc
+            raise SystemExit(
+                locked_asset_folder_message(item.asset_output_dir, "replace", folder_kind="generated preview asset folder")
+            ) from exc
         except OSError as exc:
             raise SystemExit(
-                locked_asset_folder_message(item.asset_output_dir, "replace") + f"\nOriginal error: {exc}"
+                locked_asset_folder_message(item.asset_output_dir, "replace", folder_kind="generated preview asset folder")
+                + f"\nOriginal error: {exc}"
             ) from exc
 
     try:
         shutil.copytree(item.asset_source_dir, item.asset_output_dir)
     except PermissionError as exc:
-        raise SystemExit(locked_asset_folder_message(item.asset_output_dir, "write")) from exc
+        raise SystemExit(
+            locked_asset_folder_message(item.asset_output_dir, "write", folder_kind="generated preview asset folder")
+        ) from exc
     except OSError as exc:
         raise SystemExit(
-            locked_asset_folder_message(item.asset_output_dir, "write") + f"\nOriginal error: {exc}"
+            locked_asset_folder_message(item.asset_output_dir, "write", folder_kind="generated preview asset folder")
+            + f"\nOriginal error: {exc}"
         ) from exc
 
     return item.asset_output_dir
@@ -595,9 +621,12 @@ def cleanup_inbox(files: list[Path]) -> None:
                 shutil.rmtree(asset_dir)
                 print(f"Deleted {asset_dir.relative_to(REPO_ROOT).as_posix()}")
             except PermissionError:
-                print(locked_asset_folder_message(asset_dir, "delete local inbox"))
+                print(locked_asset_folder_message(asset_dir, "delete", folder_kind="local inbox asset folder"))
             except OSError as exc:
-                print(locked_asset_folder_message(asset_dir, "delete local inbox") + f"\nOriginal error: {exc}")
+                print(
+                    locked_asset_folder_message(asset_dir, "delete", folder_kind="local inbox asset folder")
+                    + f"\nOriginal error: {exc}"
+                )
 
 
 def parse_args() -> argparse.Namespace:
