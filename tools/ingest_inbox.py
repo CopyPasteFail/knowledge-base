@@ -4,7 +4,6 @@ import argparse
 import json
 import shutil
 import subprocess
-import sys
 import time
 import webbrowser
 from collections import defaultdict
@@ -224,6 +223,66 @@ def grouped_entries_with_plan(planned: list[PlannedIngest]) -> dict[str, list[pr
     return grouped
 
 
+def nav_placeholder(path: Path) -> str:
+    rel = path.relative_to(DOCS_DIR)
+    parts = rel.parts
+    if len(parts) < 2:
+        prefix = ""
+        current_section = ""
+        current_output = ""
+    else:
+        prefix = "../"
+        current_section = parts[0]
+        current_output = "" if parts[-1] == "index.html" else parts[-1]
+
+    return (
+        '<aside class="docs-sidebar" aria-label="Documentation navigation" '
+        'data-docs-nav '
+        f'data-nav-prefix="{process_html.html.escape(prefix, quote=True)}" '
+        f'data-current-section="{process_html.html.escape(current_section, quote=True)}" '
+        f'data-current-output="{process_html.html.escape(current_output, quote=True)}"></aside>'
+    )
+
+
+def replace_embedded_nav(path: Path) -> None:
+    html_text = path.read_text(encoding="utf-8", errors="ignore")
+    pattern = process_html.re.compile(
+        r'<aside\b[^>]*class=["\'][^"\']*\bdocs-sidebar\b[^"\']*["\'][^>]*>.*?</aside>',
+        flags=process_html.re.IGNORECASE | process_html.re.DOTALL,
+    )
+    updated = pattern.sub(nav_placeholder(path), html_text, count=1)
+    if updated != html_text:
+        path.write_text(updated, encoding="utf-8", newline="\n")
+
+
+def write_shared_data(grouped: dict[str, list[process_html.ArticleEntry]]) -> Path:
+    assets_dir = DOCS_DIR / "assets"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+
+    sections = []
+    for section_slug in sorted(grouped.keys()):
+        entries = sorted(grouped[section_slug], key=lambda item: item["title"].lower())
+        sections.append(
+            {
+                "slug": section_slug,
+                "title": process_html.humanize_slug(section_slug),
+                "items": [
+                    {
+                        "title": entry["title"],
+                        "href": entry["output_relpath"],
+                        "output": entry["output_name"],
+                    }
+                    for entry in entries
+                ],
+            }
+        )
+
+    payload = json.dumps({"sections": sections}, ensure_ascii=False, indent=2)
+    output = assets_dir / "navigation-data.js"
+    output.write_text(f"window.DEVBRAIN_NAVIGATION = {payload};\n", encoding="utf-8", newline="\n")
+    return output
+
+
 def generate(planned: list[PlannedIngest]) -> list[Path]:
     DOCS_DIR.mkdir(exist_ok=True)
     (DOCS_DIR / ".nojekyll").write_text("", encoding="utf-8", newline="\n")
@@ -242,15 +301,19 @@ def generate(planned: list[PlannedIngest]) -> list[Path]:
             encoding="utf-8",
             newline="\n",
         )
+        replace_embedded_nav(entry["output_path"])
         written.append(entry["output_path"])
 
     affected_sections = sorted({item.section for item in planned})
     for section in affected_sections:
         process_html.generate_section_index(section, grouped[section], grouped)
-        written.append(DOCS_DIR / section / "index.html")
+        section_index = DOCS_DIR / section / "index.html"
+        replace_embedded_nav(section_index)
+        written.append(section_index)
 
     process_html.generate_root_index(grouped)
     written.append(DOCS_DIR / "index.html")
+    written.append(write_shared_data(grouped))
     return written
 
 
@@ -281,10 +344,6 @@ def confirm(prompt: str, assume_yes: bool) -> bool:
         return True
     answer = input(f"{prompt} [y/N] ").strip().lower()
     return answer in {"y", "yes"}
-
-
-def git_has_changes() -> bool:
-    return bool(git_output(["status", "--porcelain"]))
 
 
 def commit_and_push(message: str, no_push: bool) -> str | None:
