@@ -10,6 +10,9 @@ env/
 
 # Local inbox exports
 inbox/**/*.html
+inbox/**/* files/
+inbox/**/*_files/
+inbox/**/*.files/
 !inbox/**/.gitkeep
 
 # OS / editor junk
