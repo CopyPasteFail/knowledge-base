@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deployments vs StatefulSets - Cheat-sheet · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="devops-interview-prep" data-current-output="deployments-vs-statefulsets-cheat-sheet.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Devops Interview Prep</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Devops Interview Prep</p>
+          <h1>Deployments vs StatefulSets - Cheat-sheet</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="Deployments vs StatefulSets - Cheat-sheet">
+      
+      
+          </div><h2 iscollapsed="false" nodeid="95ddf427-6847-4ccd-86bf-7b4069832841" id="core-difference">Core Difference</h2><div class="para"><b>Deployment</b>: stateless, interchangeable pods.
+<b>StatefulSet</b>: stateful, identity-bound pods with stable storage and stable hostnames.</div><h2 nodeid="e4242344-b229-4a15-8392-1f35007b51f9" id="when-to-use-what-fast-rules">When to Use What? (Fast Rules)</h2><h3 nodeid="9d604e12-5e4f-4354-9e21-600a1bb49613" id="use-a-deployment-when">Use a Deployment when:</h3><ul role="list"><li><div><div class="para">Pods are identical and replaceable</div></div></li><li><div><div class="para">You want fast, parallel scaling</div></div></li><li><div><div class="para">You need blue-green or canary strategies</div></div></li><li><div><div class="para">You don’t need stable network IDs</div></div></li><li><div><div class="para">Storage is ephemeral or externalized (DB-as-a-service, caches, microservices)</div></div></li></ul><div class="para"><b>Examples:</b> web apps, APIs, workers, queues (non-durable), ML inference, frontend services.</div><h3 nodeid="1dbf9c3f-36aa-466e-8f33-9ef25d46bb34" id="use-a-statefulset-when">Use a StatefulSet when:</h3><ul role="list"><li><div><div class="para">Pods need stable names (<code class="qwLsO O_pm7" spellcheck="false">app-0</code>, <code class="qwLsO O_pm7" spellcheck="false">app-1</code>)</div></div></li><li><div><div class="para">Each pod must keep its own data</div></div></li><li><div><div class="para">Ordered startup/shutdown matters</div></div></li><li><div><div class="para">Storage must persist across restarts</div></div></li><li><div><div class="para">The app expects node identity (DB replicas, brokers)</div></div></li></ul><div class="para"><b>Examples:</b> databases, Zookeeper, Kafka brokers, per-pod storage apps.</div><h2 nodeid="f7e3e46b-5eed-4d4b-a4ee-2dd7762f0bbb" id="key-behavioral-differences">Key Behavioral Differences</h2><h3 nodeid="87e40dfe-eca3-47ba-a826-4b1dc7c14f67" id="pod-identity">Pod Identity</h3><ul role="list"><li><div><div class="para"><b>Deployment:</b> <code class="qwLsO O_pm7" spellcheck="false">pod-xxx</code> random names, interchangeable</div></div></li><li><div><div class="para"><b>StatefulSet:</b> deterministic identity (<code class="qwLsO O_pm7" spellcheck="false">name-0</code>, <code class="qwLsO O_pm7" spellcheck="false">name-1</code>)
+→ The app can rely on “node 0” always being node 0.</div></div></li></ul><h3 nodeid="5c40ae13-8fc0-4e8d-a773-e8b11f0b6aa2" id="scaling">Scaling</h3><ul role="list"><li><div><div class="para"><b>Deployment:</b> parallel, fast</div></div></li><li><div><div class="para"><b>StatefulSet:</b> strict one-by-one scale up/down</div></div></li></ul><h3 nodeid="44dc6034-bab1-49e5-974d-63118c0786e1" id="rollouts">Rollouts</h3><ul role="list"><li><div><div class="para"><b>Deployment:</b> supports surge, parallelism, blue-green, canary</div></div></li><li><div><div class="para"><b>StatefulSet:</b> ordered, serial rollouts; first pod failing stops everything</div></div></li></ul><h3 nodeid="deee3495-abe9-4df2-8c78-58d46b948c64" id="storage">Storage</h3><ul role="list"><li><div><div class="para"><b>Deployment:</b> ephemeral by default</div></div></li><li><div><div class="para"><b>StatefulSet:</b> auto PVC per pod; PVC sticks even after pod deletion</div></div></li></ul><h3 nodeid="6bac5555-1e17-4982-9e24-b0efc8c630cd" id="renaming">Renaming</h3><ul role="list"><li><div><div class="para"><b>Deployment:</b> trivial, no data implications</div></div></li><li><div><div class="para"><b>StatefulSet:</b> renaming causes new PVCs → data migration headache</div></div></li></ul><h2 nodeid="f3cd2407-84d3-465e-a278-16c404bc1442" id="common-pitfalls">Common Pitfalls</h2><h3 nodeid="15f088cd-cbd0-4ce1-9a57-96d33a6f6c9d" id="statefulset-pitfalls">StatefulSet Pitfalls</h3><ul role="list"><li><div><div class="para">Slow scaling due to ordered rollout</div></div></li><li><div><div class="para">Zombie PVCs remain forever unless cleaned</div></div></li><li><div><div class="para">Renaming creates new volume names</div></div></li><li><div><div class="para">No native canary/blue-green support</div></div></li><li><div><div class="para">Poor for DBs unless paired with an operator</div></div></li><li><div><div class="para">Hard resets: identity is sticky</div></div></li><li><div><div class="para">Terraform drift: immutable fields cause noise</div></div></li></ul><h3 nodeid="260d35e7-62f7-4bd2-a33e-a3c5bd7c129d" id="deployment-pitfalls">Deployment Pitfalls</h3><ul role="list"><li><div><div class="para">Not suitable for identity-aware workloads</div></div></li><li><div><div class="para">Data tied to pods is unsafe</div></div></li><li><div><div class="para">Random hostnames can break legacy or clustered software</div></div></li><li><div><div class="para">Rolling updates can break quorum services if misconfigured</div></div></li></ul><h2 nodeid="532cd147-3377-48c6-8195-4d134016e1a7" id="quick-comparison-table">Quick Comparison Table</h2><en-table><div class="container"><table width="564px"><tbody><tr><th data-colwidth="[188]"><div class="para">Feature</div></th><th data-colwidth="[188]"><div class="para">Deployment</div></th><th data-colwidth="[188]"><div class="para">StatefulSet</div></th></tr><tr><td data-colwidth="[188]"><div class="para">Pod Identity</div></td><td data-colwidth="[188]"><div class="para">Random</div></td><td data-colwidth="[188]"><div class="para">Stable</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Storage</div></td><td data-colwidth="[188]"><div class="para">Ephemeral</div></td><td data-colwidth="[188]"><div class="para">Per-pod PVC</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Scaling</div></td><td data-colwidth="[188]"><div class="para">Parallel</div></td><td data-colwidth="[188]"><div class="para">Sequential</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Rollouts</div></td><td data-colwidth="[188]"><div class="para">Flexible (surge/canary/blue-green)</div></td><td data-colwidth="[188]"><div class="para">Ordered, slow</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Renaming</div></td><td data-colwidth="[188]"><div class="para">Easy</div></td><td data-colwidth="[188]"><div class="para">Hard; breaks PVC mapping</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Best For</div></td><td data-colwidth="[188]"><div class="para">Stateless services</div></td><td data-colwidth="[188]"><div class="para">Stateful clustered systems</div></td></tr><tr><td data-colwidth="[188]"><div class="para">Deletes PVCs?</div></td><td data-colwidth="[188]"><div class="para">No volumes</div></td><td data-colwidth="[188]"><div class="para">PVCs preserved</div></td></tr></tbody></table></div></en-table><h2 nodeid="2c5e4e64-615d-45c2-9270-984f1f7a4fe4" id="mini-examples">Mini Examples</h2><div class="para"><b>Example 1 – stateless API:</b>
+Use a Deployment. Pods can scale from 5 to 50 instantly.</div><div class="para"><b>Example 2 – Kafka brokers:</b>
+Use StatefulSet. Each broker must keep identity + its own log directory.</div><div class="para"><b>Example 3 – DB failover:</b>
+StatefulSet alone isn’t enough. You need an operator (e.g., PGO, MySQL Operator).</div><div class="para"><b>Example 4 – renaming pain:</b>
+<code class="qwLsO O_pm7" spellcheck="false">old-app</code> → <code class="qwLsO O_pm7" spellcheck="false">new-app</code> in StatefulSet triggers new PVC names like <code class="qwLsO O_pm7" spellcheck="false">data-new-app-0</code> that don’t match old ones.</div><h1 nodeid="ca28e20b-7bb6-41fb-9106-206a73a90eac">Knowledge-Check Q&amp;A</h1><h2 nodeid="728ac0b9-282e-43ed-84e9-1032c7f3ead4" id="why-not-put-databases-in-statefulsets-directly">Why not put databases in StatefulSets directly?</h2><div class="para">Because StatefulSet doesn’t handle leader election, replication, failover, fencing, or backups. An operator does.</div><h2 nodeid="b187f7ae-c213-41b6-8695-4af1fcec6f64" id="can-i-use-a-deployment-with-persistent-storage">Can I use a Deployment with persistent storage?</h2><div class="para">Technically yes but dangerous; any pod may mount the wrong volume. That’s why StatefulSet exists.</div><h2 nodeid="7d2a1fd9-07fe-4ab4-9a0e-06b73cce06c8" id="how-to-migrate-a-statefulset-safely">How to migrate a StatefulSet safely?</h2><div class="para">Snapshot PVCs → create new StatefulSet → restore volumes with correct names → reattach.</div><h2 nodeid="07439d73-3c34-40ef-8900-45e4c646f152" id="is-it-ok-to-run-rabbitmq-or-mysql-in-a-statefulset-in-production">Is it OK to run RabbitMQ or MySQL in a StatefulSet in production?</h2><div class="para"><b>Question:</b> Is running databases or brokers inside Kubernetes acceptable?</div><div class="para"><b>Quick Answer:</b> RabbitMQ: OK if using the operator and proper storage. MySQL: Usually no. Use managed DB unless you have a strong infra team and specific reasons, because backups, upgrades, failover, replication, and data safety are operationally complex and easy to get wrong in Kubernetes.</div><h2 nodeid="af78e208-a850-4169-81ed-c338a841a340" id="update-strategy-in-deployment-vs-statefulset">Update strategy in Deployment vs StatefulSet</h2><div class="para"><b>Question:</b> How does update strategy behave differently in a Deployment compared to a StatefulSet?</div><div class="para"><b>Answer:</b></div><ul role="list"><li><div><div class="para"><b>Deployment:</b> Pods are stateless and interchangeable, so updates focus on availability and speed. Pods can be created and removed in any order.</div></div></li><li><div><div class="para"><b>StatefulSet:</b> Pods have stable identities and ordering, so updates happen one Pod at a time, in order, to protect state and dependencies.</div></div></li></ul><div class="para"><b>Follow-up:</b> How do <code class="qwLsO O_pm7" spellcheck="false">maxUnavailable</code> and <code class="qwLsO O_pm7" spellcheck="false">maxSurge</code> affect the update strategy?</div><div class="para"><b>Follow-up answer:</b></div><div class="para">These fields are set on a <b>Deployment</b> under <code class="qwLsO O_pm7" spellcheck="false">spec.strategy.rollingUpdate</code>. They control the speed vs safety tradeoff: higher values mean faster rollouts but more resource usage or risk.</div><ul role="list"><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false"><b>maxUnavailable</b></code><b>:</b> how many Pods are allowed to be unavailable during an update.</div></div></li><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false"><b>maxSurge</b></code><b>:</b> how many extra Pods can be created above the desired replica count during an update.</div></div></li></ul><div class="para"><b>Important:</b></div><ul role="list"><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false">maxUnavailable</code> and <code class="qwLsO O_pm7" spellcheck="false">maxSurge</code> apply only to <b>Deployments</b>.</div></div></li><li><div><div class="para"><b>StatefulSets do not support them</b> because Pods must be updated sequentially and predictably.</div></div></li></ul><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../devops-interview-prep/db-architecture-design-cheat-sheet.html"><span>Previous</span><strong>DB Architecture &amp; Design - Cheat-sheet</strong></a>
+          <a class="pager-link" href="../devops-interview-prep/eks-cheat-sheet.html"><span>Next</span><strong>EKS – Cheat-sheet</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#core-difference">Core Difference</a></li>
+          <li class="toc-level-2"><a href="#when-to-use-what-fast-rules">When to Use What? (Fast Rules)</a></li>
+          <li class="toc-level-3"><a href="#use-a-deployment-when">Use a Deployment when:</a></li>
+          <li class="toc-level-3"><a href="#use-a-statefulset-when">Use a StatefulSet when:</a></li>
+          <li class="toc-level-2"><a href="#key-behavioral-differences">Key Behavioral Differences</a></li>
+          <li class="toc-level-3"><a href="#pod-identity">Pod Identity</a></li>
+          <li class="toc-level-3"><a href="#scaling">Scaling</a></li>
+          <li class="toc-level-3"><a href="#rollouts">Rollouts</a></li>
+          <li class="toc-level-3"><a href="#storage">Storage</a></li>
+          <li class="toc-level-3"><a href="#renaming">Renaming</a></li>
+          <li class="toc-level-2"><a href="#common-pitfalls">Common Pitfalls</a></li>
+          <li class="toc-level-3"><a href="#statefulset-pitfalls">StatefulSet Pitfalls</a></li>
+          <li class="toc-level-3"><a href="#deployment-pitfalls">Deployment Pitfalls</a></li>
+          <li class="toc-level-2"><a href="#quick-comparison-table">Quick Comparison Table</a></li>
+          <li class="toc-level-2"><a href="#mini-examples">Mini Examples</a></li>
+          <li class="toc-level-2"><a href="#why-not-put-databases-in-statefulsets-directly">Why not put databases in StatefulSets directly?</a></li>
+          <li class="toc-level-2"><a href="#can-i-use-a-deployment-with-persistent-storage">Can I use a Deployment with persistent storage?</a></li>
+          <li class="toc-level-2"><a href="#how-to-migrate-a-statefulset-safely">How to migrate a StatefulSet safely?</a></li>
+          <li class="toc-level-2"><a href="#is-it-ok-to-run-rabbitmq-or-mysql-in-a-statefulset-in-production">Is it OK to run RabbitMQ or MySQL in a StatefulSet in production?</a></li>
+          <li class="toc-level-2"><a href="#update-strategy-in-deployment-vs-statefulset">Update strategy in Deployment vs StatefulSet</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

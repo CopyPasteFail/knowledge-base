@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ai · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="section-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="section-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="ai" data-current-output=""></aside>
+      <section class="section-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <span>Ai</span>
+        </nav>
+        <header class="section-header">
+          <p class="eyebrow">Category</p>
+          <h1>Ai</h1>
+          <p>Browse the notes in this collection.</p>
+        </header>
+        <label class="section-filter">
+          <span>Filter this category</span>
+          <input type="search" placeholder="Filter Ai..." data-search-input>
+        </label>
+        <ul class="index-list">
+          <li class="doc-result" data-search-item data-title="AGENTS.md guide" data-section="Ai">
+            <a href="agentsmd-guide.html">AGENTS.md guide</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="AI Video &amp; Image Generators" data-section="Ai">
+            <a href="ai-video-image-generators.html">AI Video &amp; Image Generators</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="AI/HPC Cluster Architecture &amp; Key Components" data-section="Ai">
+            <a href="aihpc-cluster-architecture-key-components.html">AI/HPC Cluster Architecture &amp; Key Components</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="Coding agent - AGENTS.md Creation/Revisio" data-section="Ai">
+            <a href="coding-agent-agentsmd-creationrevisio.html">Coding agent - AGENTS.md Creation/Revisio</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="Local, CLI, and Agentic LLM Tools" data-section="Ai">
+            <a href="local-cli-and-agentic-llm-tools.html">Local, CLI, and Agentic LLM Tools</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="Remotion with coding agents tutorial" data-section="Ai">
+            <a href="remotion-with-coding-agents-tutorial.html">Remotion with coding agents tutorial</a>
+          </li>
+          <li class="doc-result" data-search-item data-title="Useful AI Agents Skills/Plugins/Workflows" data-section="Ai">
+            <a href="useful-ai-agents-skillspluginsworkflows.html">Useful AI Agents Skills/Plugins/Workflows</a>
+          </li>
+        </ul>
+      </section>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

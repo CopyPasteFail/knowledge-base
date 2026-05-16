@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClickHouse - Cheat-sheet · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="devops-interview-prep" data-current-output="clickhouse-cheat-sheet.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Devops Interview Prep</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Devops Interview Prep</p>
+          <h1>ClickHouse - Cheat-sheet</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="ClickHouse - Cheat-sheet">
+      
+      
+          </div><h1 nodeid="52e254a0-fdf1-4baf-99e0-5f82e3aac604">What it is</h1><div class="para">ClickHouse is a <b>real-time, columnar OLAP engine</b> optimized for <b>blazing-fast analytics on massive datasets</b>, with low cost and simple operations, ideal for <b>events, logs, metrics, and product analytics</b>, but <b>not suited for transactional workloads or heavy updates</b>.</div><h1 nodeid="a2d6e1f4-745d-489a-ab3f-612d096eb360">Why it exists – Motivation</h1><ul role="list"><li><div><div class="para">Traditional row databases choke on analytics at scale.</div></div></li><li><div><div class="para">Big data engines like Spark are fast but complex to operate.</div></div></li><li><div><div class="para">ClickHouse gives <b>sub-second analytics on billions of rows</b> with <b>simple SQL</b>, <b>cheap hardware</b>, and <b>minimal ops</b>.</div></div></li><li><div><div class="para">Ideal for <b>real-time analytics</b>, <b>observability</b>, <b>metrics</b>, <b>logs</b>, <b>ad performance</b>, <b>fraud detection</b>, etc.</div></div></li></ul><h1 nodeid="f2333415-0962-4c78-af9b-b828fda46816">Core concepts you need to know</h1><ul role="list"><li><div><div class="para"><b>Columnar storage</b> – only read columns you need; massive IO savings.</div></div></li><li><div><div class="para"><b>Sparse indexes (skip indexes)</b> – lightweight indexes allowing fast scans without heavy trees.</div></div></li><li><div><div class="para"><b>MergeTree family</b> – the storage engine that powers partitioning, ordering, replication, TTL, and background merges.</div></div></li><li><div><div class="para"><b>Append-only</b> – no in-place updates; uses mutation pipelines.</div></div></li><li><div><div class="para"><b>Vectorized execution</b> – operates on blocks for CPU efficiency.</div></div></li><li><div><div class="para"><b>Materialized views</b> – extremely common; used to pre-aggregate data.</div></div></li><li><div><div class="para"><b>ReplicatedMergeTree</b> – built-in HA with ZooKeeper or ClickHouse Keeper.</div></div></li><li><div><div class="para"><b>Distributed tables</b> – logical sharding across clusters.</div></div></li><li><div><div class="para"><b>TTL</b> – auto removal of old data.</div></div></li></ul><h1 nodeid="60d8b855-2140-41d9-8ce9-0385498b484e">Pros</h1><ul role="list"><li><div><div class="para"><b>Insane performance</b> for analytical workloads (billions of rows per second).</div></div></li><li><div><div class="para"><b>Very low storage cost</b> due to heavy compression.</div></div></li><li><div><div class="para"><b>SQL-based</b> – easy adoption.</div></div></li><li><div><div class="para"><b>Scales horizontally and vertically.</b></div></div></li><li><div><div class="para"><b>Real-time ingestion</b> (Kafka, HTTP, inserts).</div></div></li><li><div><div class="para"><b>Materialized views</b> + <b>AggregatingMergeTree</b>: perfect for rollups.</div></div></li><li><div><div class="para"><b>Great ecosystem</b> (Keeper, Kafka engine, S3 integration).</div></div></li><li><div><div class="para"><b>Simple ops</b> compared to Hadoop/Spark/Presto/BigQuery on-prem.</div></div></li></ul><h1 nodeid="29374c5a-f01b-4cc9-9e0f-457f28558320">Cons</h1><ul role="list"><li><div><div class="para"><b>Not designed for OLTP</b> (no heavy updates, constraints, transactions).</div></div></li><li><div><div class="para"><b>Eventual consistency on merges</b>; background merging can cause data lag.</div></div></li><li><div><div class="para"><b>Joins need careful modeling</b>; not as flexible as row stores.</div></div></li><li><div><div class="para"><b>Large clusters need tuning</b> (memory, partitions, merge throttling).</div></div></li><li><div><div class="para"><b>Mutations are expensive</b> (updates/deletes rewrite parts).</div></div></li><li><div><div class="para"><b>Replication requires Keeper</b> – extra moving part.</div></div></li><li><div><div class="para"><b>Sparse indexing means full scans still happen</b> if queries aren’t well-ordered.</div></div></li></ul><h1 nodeid="81c6e2e5-bb4d-4ab3-ad82-0c72c55c697f">When to use ClickHouse – Use cases</h1><ul role="list"><li><div><div class="para"><b>Real-time analytics</b> dashboards.</div></div></li><li><div><div class="para"><b>Product analytics</b> (Mixpanel/Amplitude style).</div></div></li><li><div><div class="para"><b>Time-series</b> storage (metrics, events).</div></div></li><li><div><div class="para"><b>Log analytics</b> (ELK replacement).</div></div></li><li><div><div class="para"><b>Security analytics</b> (SIEM, fraud detection).</div></div></li><li><div><div class="para"><b>IoT event ingestion and aggregation.</b></div></div></li><li><div><div class="para"><b>Financial tick data</b> processing.</div></div></li><li><div><div class="para"><b>Ad-tech pipelines</b> (impressions, clicks, auctions).</div></div></li></ul><h1 nodeid="8c92da91-2a18-4db5-8e88-5ad483205d97">When NOT to use ClickHouse</h1><ul role="list"><li><div><div class="para">You need transactional guarantees.</div></div></li><li><div><div class="para">High-rate updates/deletes.</div></div></li><li><div><div class="para">Highly relational workloads with lots of joins.</div></div></li><li><div><div class="para">Small datasets where Postgres is enough.</div></div></li></ul><h1 nodeid="9bd84da5-974a-4db8-a362-ce5ce00790b4">ClickHouse vs Others – Comparison Table</h1><en-table><div class="container"><table width="1128px"><tbody><tr><th data-colwidth="[188]"><div class="para">Feature / DB</div></th><th data-colwidth="[188]"><div class="para"><b>ClickHouse</b></div></th><th data-colwidth="[188]"><div class="para">Postgres / MySQL</div></th><th data-colwidth="[188]"><div class="para">BigQuery / Snowflake</div></th><th data-colwidth="[188]"><div class="para">Elasticsearch</div></th><th data-colwidth="[188]"><div class="para">Druid / Pinot</div></th></tr><tr><td data-colwidth="[188]"><div class="para"><b>Type</b></div></td><td data-colwidth="[188]"><div class="para">OLAP columnar</div></td><td data-colwidth="[188]"><div class="para">OLTP row DB</div></td><td data-colwidth="[188]"><div class="para">Cloud OLAP</div></td><td data-colwidth="[188]"><div class="para">Search + analytics</div></td><td data-colwidth="[188]"><div class="para">Realtime columnar OLAP</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Best for</b></div></td><td data-colwidth="[188]"><div class="para">Analytics on huge datasets</div></td><td data-colwidth="[188]"><div class="para">Transactions</div></td><td data-colwidth="[188]"><div class="para">Petabyte-scale queries</div></td><td data-colwidth="[188]"><div class="para">Text search + logs</div></td><td data-colwidth="[188]"><div class="para">Low-latency event analytics</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Query latency</b></div></td><td data-colwidth="[188]"><div class="para">Sub-second</div></td><td data-colwidth="[188]"><div class="para">ms–low seconds</div></td><td data-colwidth="[188]"><div class="para">Seconds–minutes</div></td><td data-colwidth="[188]"><div class="para">ms–seconds</div></td><td data-colwidth="[188]"><div class="para">ms–seconds</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Ingestion speed</b></div></td><td data-colwidth="[188]"><div class="para">Very high</div></td><td data-colwidth="[188]"><div class="para">Low–medium</div></td><td data-colwidth="[188]"><div class="para">Very high</div></td><td data-colwidth="[188]"><div class="para">High</div></td><td data-colwidth="[188]"><div class="para">Very high</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Updates/deletes</b></div></td><td data-colwidth="[188]"><div class="para">Costly mutations</div></td><td data-colwidth="[188]"><div class="para">Strong support</div></td><td data-colwidth="[188]"><div class="para">Limited but optimized</div></td><td data-colwidth="[188]"><div class="para">Good</div></td><td data-colwidth="[188]"><div class="para">Limited</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Cost efficiency</b></div></td><td data-colwidth="[188]"><div class="para">Excellent (compression)</div></td><td data-colwidth="[188]"><div class="para">Medium</div></td><td data-colwidth="[188]"><div class="para">Expensive at scale</div></td><td data-colwidth="[188]"><div class="para">Expensive</div></td><td data-colwidth="[188]"><div class="para">Medium</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Indexing</b></div></td><td data-colwidth="[188]"><div class="para">Sparse skip indexes</div></td><td data-colwidth="[188]"><div class="para">B-tree, etc</div></td><td data-colwidth="[188]"><div class="para">None (columnar scan)</div></td><td data-colwidth="[188]"><div class="para">Inverted index</div></td><td data-colwidth="[188]"><div class="para">Inverted + bitmap</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Storage</b></div></td><td data-colwidth="[188]"><div class="para">Local disk / S3 (cheap)</div></td><td data-colwidth="[188]"><div class="para">Local</div></td><td data-colwidth="[188]"><div class="para">Cloud</div></td><td data-colwidth="[188]"><div class="para">Local+cloud</div></td><td data-colwidth="[188]"><div class="para">Local+cloud</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Scalability</b></div></td><td data-colwidth="[188]"><div class="para">Horizontal + vertical</div></td><td data-colwidth="[188]"><div class="para">Limited vertical</div></td><td data-colwidth="[188]"><div class="para">Infinite (managed)</div></td><td data-colwidth="[188]"><div class="para">Horizontal</div></td><td data-colwidth="[188]"><div class="para">Horizontal</div></td></tr><tr><td data-colwidth="[188]"><div class="para"><b>Text search</b></div></td><td data-colwidth="[188]"><div class="para">Weak</div></td><td data-colwidth="[188]"><div class="para">OK</div></td><td data-colwidth="[188]"><div class="para">Weak</div></td><td data-colwidth="[188]"><div class="para">Strong</div></td><td data-colwidth="[188]"><div class="para">Weak</div></td></tr></tbody></table></div></en-table><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../devops-interview-prep/aws-core-services-cheat-sheet.html"><span>Previous</span><strong>AWS Core Services – Cheat-sheet</strong></a>
+          <a class="pager-link" href="../devops-interview-prep/cloud-practice-questions.html"><span>Next</span><strong>Cloud - Practice Questions</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <p class="toc-empty">No section headings</p>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

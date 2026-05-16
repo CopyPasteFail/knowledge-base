@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Probes with HPA, ALB, Ingress - Cheat-sheet · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="devops-interview-prep" data-current-output="probes-with-hpa-alb-ingress-cheat-sheet.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Devops Interview Prep</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Devops Interview Prep</p>
+          <h1>Probes with HPA, ALB, Ingress - Cheat-sheet</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="Probes with HPA, ALB, Ingress - Cheat-sheet">
+      
+      
+          </div><h2 nodeid="a9785955-ae7a-4c4f-b861-97599f00ba7f" id="tldr">TL;DR</h2><blockquote><div class="para">Readiness runs continuously. If it fails, the pod stays Running but NotReady and is removed from Service endpoints so traffic stops. Liveness failure restarts the container but the pod usually stays Running. HPA does not read probes, but readiness failures shift load to fewer pods and can trigger scaling. Ingress and ALB route only to Ready endpoints, and draining needs readiness plus preStop plus grace period</div></blockquote><h2 nodeid="40d05eea-5a62-482c-a54b-cca1c0749c83" id="the-chain-of-control-who-decides-what">The chain of control (who decides what)</h2><ul role="list"><li><div><div class="para"><b>Readiness</b> decides whether a pod is in <b>Service endpoints</b></div></div></li><li><div><div class="para"><b>Service endpoints</b> decide where <b>Ingress and ALB</b> can route</div></div></li><li><div><div class="para"><b>HPA</b> decides <b>replica count</b> based on metrics</div></div></li><li><div><div class="para"><b>Liveness</b> restarts containers, does not directly decide traffic</div></div></li></ul><h2 nodeid="2c40ce4e-fc60-465e-b0c8-e66f6e3be382" id="hpa-horizontal-pod-autoscaler">HPA (Horizontal Pod Autoscaler)</h2><ul role="list"><li><div><div class="para">Scales <b>number of pods</b></div></div></li><li><div><div class="para">Based on metrics:</div></div></li><ul role="list"><li><div><div class="para">CPU</div></div></li><li><div><div class="para">memory</div></div></li><li><div><div class="para">custom metrics (Prometheus, KEDA)</div></div></li></ul><li><div><div class="para">Bounded by:</div></div></li><ul role="list"><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false">minReplicas</code></div></div></li><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false">maxReplicas</code></div></div></li></ul><li><div><div class="para">HPA decides <i>within</i> those limits</div></div></li><li><div><div class="para">HPA does <b>not</b> read readiness or liveness directly</div></div></li></ul><h2 nodeid="5f7e4321-40e4-4811-9f68-7a5390b77581" id="probes-and-hpa-interaction">Probes and HPA interaction</h2><div class="para"><b>How readiness affects HPA indirectly</b></div><ul role="list"><li><div><div class="para">Pod fails readiness → removed from endpoints</div></div></li><li><div><div class="para">Traffic concentrates on fewer Ready pods</div></div></li><li><div><div class="para">Metrics spike on remaining pods</div></div></li><li><div><div class="para">HPA scales up</div></div></li></ul><div class="para">This can be good or can cause oscillations if readiness flaps.</div><div class="para"><b>Common failure pattern</b></div><ul role="list"><li><div><div class="para">Readiness is too strict or flaky</div></div></li><li><div><div class="para">Pods flip NotReady often</div></div></li><li><div><div class="para">Load concentrates, HPA chases spikes, cluster becomes unstable</div></div></li></ul><div class="para"><b>Best practices</b></div><ul role="list"><li><div><div class="para">Keep readiness stable (avoid flapping)</div></div></li><li><div><div class="para">Use startupProbe for slow boots</div></div></li><li><div><div class="para">Prefer meaningful metrics (RPS, latency, queue depth) over CPU when possible</div></div></li></ul><h2 nodeid="4d25b2d7-2154-4017-aa73-3f5a94cfbeda" id="probes-and-ingress-interaction">Probes and Ingress interaction</h2><div class="para">Traffic path: Client → Ingress → Service → <b>Ready endpoints only</b></div><div class="para">Readiness fails:</div><ul role="list"><li><div><div class="para">Endpoint removed</div></div></li><li><div><div class="para">Ingress stops routing new traffic to that pod (via Service)</div></div></li></ul><div class="para">Ingress does not “check readiness” directly, it follows endpoints.</div><h2 nodeid="ed2f09af-a7c5-4aea-9f9a-a5d8af780d18" id="probes-and-alb-interaction-aws">Probes and ALB interaction (AWS)</h2><div class="para">You often have two layers of health gating:</div><ol role="list"><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Kubernetes readiness (endpoints)</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">ALB target group health checks</div></div></li></ol><div class="para"><b>Instance / NodePort mode</b></div><ul role="list"><li><div><div class="para">ALB sends to nodes</div></div></li><li><div><div class="para">kube-proxy routes to Ready pods</div></div></li><li><div><div class="para">Readiness still controls traffic</div></div></li></ul><div class="para"><b>IP mode</b></div><ul role="list"><li><div><div class="para">ALB registers pod IPs directly</div></div></li><li><div><div class="para">Readiness still removes endpoints, and targets often get deregistered</div></div></li><li><div><div class="para">ALB health checks can add lag and complexity</div></div></li></ul><div class="para"><b>Common mistake</b></div><ul role="list"><li><div><div class="para">Using a strict dependency-based <code class="qwLsO O_pm7" spellcheck="false">/ready</code> for ALB health checks</div></div></li><li><div><div class="para">Causes slow deregistration and traffic glitches when dependencies blip</div></div></li></ul><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../devops-interview-prep/probes-pod-states-cheat-sheet.html"><span>Previous</span><strong>Probes &amp; Pod States - Cheat-sheet</strong></a>
+          <a class="pager-link" href="../devops-interview-prep/redis-cheat-sheet.html"><span>Next</span><strong>Redis – Cheat-sheet</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#tldr">TL;DR</a></li>
+          <li class="toc-level-2"><a href="#the-chain-of-control-who-decides-what">The chain of control (who decides what)</a></li>
+          <li class="toc-level-2"><a href="#hpa-horizontal-pod-autoscaler">HPA (Horizontal Pod Autoscaler)</a></li>
+          <li class="toc-level-2"><a href="#probes-and-hpa-interaction">Probes and HPA interaction</a></li>
+          <li class="toc-level-2"><a href="#probes-and-ingress-interaction">Probes and Ingress interaction</a></li>
+          <li class="toc-level-2"><a href="#probes-and-alb-interaction-aws">Probes and ALB interaction (AWS)</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

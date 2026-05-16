@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DevBrain Knowledge Base · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="home-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="home-shell">
+      <section class="search-hero" aria-labelledby="home-title">
+        <p class="eyebrow">Developer knowledge base</p>
+        <h1 id="home-title">DevBrain</h1>
+        <p class="intro">Search and browse notes from <code>docs/</code>.</p>
+        <label class="global-search">
+          <span>Search documentation</span>
+          <input type="search" placeholder="Search notes and topics..." data-search-input autofocus>
+        </label>
+        <ul class="search-results" aria-label="Search results">
+          <li class="doc-result" data-search-item data-title="AGENTS.md guide" data-section="Ai">
+            <a href="ai/agentsmd-guide.html">AGENTS.md guide</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="AI Video &amp; Image Generators" data-section="Ai">
+            <a href="ai/ai-video-image-generators.html">AI Video &amp; Image Generators</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="AI/HPC Cluster Architecture &amp; Key Components" data-section="Ai">
+            <a href="ai/aihpc-cluster-architecture-key-components.html">AI/HPC Cluster Architecture &amp; Key Components</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Coding agent - AGENTS.md Creation/Revisio" data-section="Ai">
+            <a href="ai/coding-agent-agentsmd-creationrevisio.html">Coding agent - AGENTS.md Creation/Revisio</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Local, CLI, and Agentic LLM Tools" data-section="Ai">
+            <a href="ai/local-cli-and-agentic-llm-tools.html">Local, CLI, and Agentic LLM Tools</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Remotion with coding agents tutorial" data-section="Ai">
+            <a href="ai/remotion-with-coding-agents-tutorial.html">Remotion with coding agents tutorial</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Useful AI Agents Skills/Plugins/Workflows" data-section="Ai">
+            <a href="ai/useful-ai-agents-skillspluginsworkflows.html">Useful AI Agents Skills/Plugins/Workflows</a>
+            <span>Ai</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Architecture &amp; Scenario-Based Q&amp;A" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/architecture-scenario-based-qa.html">Architecture &amp; Scenario-Based Q&amp;A</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="AWS Core Services – Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/aws-core-services-cheat-sheet.html">AWS Core Services – Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="ClickHouse - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/clickhouse-cheat-sheet.html">ClickHouse - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Cloud - Practice Questions" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/cloud-practice-questions.html">Cloud - Practice Questions</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Cloud Architecture Fundamentals" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/cloud-architecture-fundamentals.html">Cloud Architecture Fundamentals</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="DB Architecture &amp; Design - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/db-architecture-design-cheat-sheet.html">DB Architecture &amp; Design - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Deployments vs StatefulSets - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/deployments-vs-statefulsets-cheat-sheet.html">Deployments vs StatefulSets - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="EKS – Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/eks-cheat-sheet.html">EKS – Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="GCP Core Services – Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/gcp-core-services-cheat-sheet.html">GCP Core Services – Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="HTTP Response Codes – Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/http-response-codes-cheat-sheet.html">HTTP Response Codes – Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Infra / OS Interview Q&amp;A" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/infra-os-interview-qa.html">Infra / OS Interview Q&amp;A</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Kafka - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/kafka-cheat-sheet.html">Kafka - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Kubernetes - Practice Questions" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/kubernetes-practice-questions.html">Kubernetes - Practice Questions</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Kubernets Networking - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/kubernets-networking-cheat-sheet.html">Kubernets Networking - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="MongoDB - Architecture" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/mongodb-architecture.html">MongoDB - Architecture</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Observability Stack - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/observability-stack-cheat-sheet.html">Observability Stack - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Probes &amp; Pod States - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/probes-pod-states-cheat-sheet.html">Probes &amp; Pod States - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Probes with HPA, ALB, Ingress - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/probes-with-hpa-alb-ingress-cheat-sheet.html">Probes with HPA, ALB, Ingress - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Redis – Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/redis-cheat-sheet.html">Redis – Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Spring Boot - Cheet-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/spring-boot-cheet-sheet.html">Spring Boot - Cheet-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+          <li class="doc-result" data-search-item data-title="Terraform - Cheat-sheet" data-section="Devops Interview Prep">
+            <a href="devops-interview-prep/terraform-cheat-sheet.html">Terraform - Cheat-sheet</a>
+            <span>Devops Interview Prep</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="home-section" aria-labelledby="topics-title">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Browse</p>
+            <h2 id="topics-title">Topics</h2>
+          </div>
+        </div>
+        <div class="topic-grid">
+          <a class="topic-card" href="ai/">
+            <span class="topic-icon">AI</span>
+            <strong>Ai</strong>
+            <span>7 articles</span>
+            <small>Start with AGENTS.md guide</small>
+          </a>
+          <a class="topic-card" href="devops-interview-prep/">
+            <span class="topic-icon">DE</span>
+            <strong>Devops Interview Prep</strong>
+            <span>21 articles</span>
+            <small>Start with Architecture &amp; Scenario-Based Q&amp;A</small>
+          </a>
+        </div>
+      </section>
+    </main>
+    <script src="assets/site.js" defer></script>
+</body>
+</html>

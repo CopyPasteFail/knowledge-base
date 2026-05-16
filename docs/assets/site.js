@@ -37,7 +37,79 @@
     }
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function renderDocsNav() {
+    const navData = window.DEVBRAIN_NAVIGATION;
+    if (!navData || !Array.isArray(navData.sections)) {
+      return;
+    }
+
+    document.querySelectorAll("[data-docs-nav]").forEach((container) => {
+      const prefix = container.dataset.navPrefix || "";
+      const currentSection = container.dataset.currentSection || "";
+      const currentOutput = container.dataset.currentOutput || "";
+
+      const sectionsHtml = navData.sections.map((section) => {
+        const itemsHtml = section.items.map((item) => {
+          const isActive = section.slug === currentSection && item.output === currentOutput;
+          const href = section.slug === currentSection ? item.output : `${prefix}${item.href}`;
+          const className = isActive ? "tree-link is-active" : "tree-link";
+          return `          <li><a href="${escapeHtml(href)}" class="${className}">${escapeHtml(item.title)}</a></li>`;
+        }).join("\n");
+
+        return `        <section class="tree-section">
+          <h2>${escapeHtml(section.title)}</h2>
+          <ul>
+${itemsHtml}
+          </ul>
+        </section>`;
+      }).join("\n");
+
+      container.innerHTML = `
+        <div class="desktop-docs-nav">
+          <div class="sidebar-kicker">Documentation</div>
+${sectionsHtml}
+        </div>
+        <details class="mobile-docs-nav">
+          <summary class="mobile-docs-summary">Documentation</summary>
+          <div class="mobile-docs-content">
+${sectionsHtml}
+          </div>
+        </details>`;
+    });
+  }
+
+  function loadDocsNav() {
+    if (!document.querySelector("[data-docs-nav]")) {
+      return;
+    }
+
+    if (window.DEVBRAIN_NAVIGATION) {
+      renderDocsNav();
+      return;
+    }
+
+    const currentScript = document.currentScript;
+    const src = currentScript && currentScript.getAttribute("src");
+    const navSrc = src ? src.replace(/site\.js(?:\?.*)?$/, "navigation-data.js") : "assets/navigation-data.js";
+    const script = document.createElement("script");
+    script.src = navSrc;
+    script.onload = renderDocsNav;
+    script.onerror = () => {
+      console.warn("DevBrain navigation data was not found.");
+    };
+    document.head.appendChild(script);
+  }
+
   setTheme(root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : preferredTheme(), false);
+  loadDocsNav();
 
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
     button.addEventListener("click", () => {

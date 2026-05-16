@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cloud - Practice Questions · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="devops-interview-prep" data-current-output="cloud-practice-questions.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Devops Interview Prep</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Devops Interview Prep</p>
+          <h1>Cloud - Practice Questions</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="Cloud - Practice Questions">
+      
+      
+          </div><h2 nodeid="66a88969-7883-4659-8658-03c01013b0ca" id="what-are-the-ways-to-run-startup-commands-in-aws-and-gcp">What are the ways to run startup commands in AWS and GCP?</h2><h3 nodeid="7a8378eb-bf42-4615-9a0f-79bd987e4b09" id="option-1-startup-script">Option 1: Startup Script</h3><div class="para"><b>What is it?</b></div><div class="para">A boot-time script hook used to run commands when a VM starts.</div><ul role="list"><li><div><div class="para"><b>GCP:</b> usually via instance metadata (<code class="qwLsO O_pm7" spellcheck="false">startup-script</code>)</div></div></li><li><div><div class="para"><b>AWS:</b> usually via EC2 User Data as a shell script</div></div></li></ul><div class="para">This is the most common and fastest way to bootstrap a VM.</div><div class="para"><b>Typical use cases</b></div><ul role="list"><li><div><div class="para">Install packages</div></div></li><li><div><div class="para">Start or enable services</div></div></li><li><div><div class="para">Pull config from storage or a secret manager</div></div></li><li><div><div class="para">Register the VM with another system</div></div></li><li><div><div class="para">Run small setup logic at boot</div></div></li></ul><div class="para"><b>Format and supported languages</b></div><ul role="list"><li><div><div class="para">Any executable script with a valid shebang</div></div></li><li><div><div class="para">Most common:</div></div></li><ul role="list"><li><div><div class="para">Bash (<code class="qwLsO O_pm7" spellcheck="false">#!/bin/bash</code>)</div></div></li><li><div><div class="para">Sh (<code class="qwLsO O_pm7" spellcheck="false">#!/bin/sh</code>)</div></div></li><li><div><div class="para">Python (<code class="qwLsO O_pm7" spellcheck="false">#!/usr/bin/env python3</code>) if installed</div></div></li></ul><li><div><div class="para">In practice, <b>shell is the safe default</b> on both AWS and GCP</div></div></li></ul><div class="para"><b>Does it run every boot?</b></div><ul role="list"><li><div><div class="para"><b>GCP:</b> usually yes, treat it as a boot hook</div></div></li><li><div><div class="para"><b>AWS:</b> usually first boot only on common Linux AMIs, unless behavior is explicitly changed</div></div></li></ul><div class="para"><b>Main tradeoffs</b></div><div class="para">Pros</div><ul role="list"><li><div><div class="para">Simple</div></div></li><li><div><div class="para">Fast to implement</div></div></li><li><div><div class="para">Works in almost any environment</div></div></li></ul><div class="para">Cons</div><ul role="list"><li><div><div class="para">Gets messy fast</div></div></li><li><div><div class="para">You own idempotency (avoid redoing work)</div></div></li><li><div><div class="para">Harder to maintain for complex provisioning</div></div></li><li><div><div class="para">Ordering and retries are on you</div></div></li></ul><div class="para"><b>Platform-specific notes</b></div><div class="para">GCP specifics</div><ul role="list"><li><div><div class="para">Uses Compute Engine metadata startup script mechanism</div></div></li><li><div><div class="para">Good fallback when cloud-init is not available</div></div></li><li><div><div class="para">Especially useful on images where cloud-init is missing or not enabled</div></div></li></ul><div class="para">AWS specifics</div><ul role="list"><li><div><div class="para">Usually passed as EC2 User Data</div></div></li><li><div><div class="para">On many Linux AMIs, cloud-init is still the component that executes the script under the hood</div></div></li><li><div><div class="para">Behavior can vary by AMI, so do not assume per-boot execution</div></div></li></ul><h3 nodeid="c32fc418-704b-4681-b9c3-c63f5860b014" id="option-2-cloud-init">Option 2: Cloud-init</h3><div class="para"><b>What is it?</b></div><div class="para">A Linux OS initialization system that reads boot-time configuration (user data) and applies it during startup.</div><div class="para">This is usually the cleaner option for structured provisioning.</div><div class="para"><b>Typical use cases</b></div><ul role="list"><li><div><div class="para">Create users and SSH keys</div></div></li><li><div><div class="para">Install packages declaratively</div></div></li><li><div><div class="para">Write configuration files</div></div></li><li><div><div class="para">Configure services and systemd units</div></div></li><li><div><div class="para">First-boot provisioning with clearer structure than shell scripts</div></div></li></ul><div class="para"><b>Format and supported languages</b></div><div class="para">Primary format</div><ul role="list"><li><div><div class="para"><code class="qwLsO O_pm7" spellcheck="false">#cloud-config</code> YAML (most common and cleanest)</div></div></li></ul><div class="para">Also supports</div><ul role="list"><li><div><div class="para">Shell scripts</div></div></li><li><div><div class="para">Multi-part user data (advanced cases)</div></div></li></ul><div class="para"><b>Does it run every boot?</b></div><ul role="list"><li><div><div class="para">Typically first-boot focused</div></div></li><li><div><div class="para">Per-boot behavior is possible, but not the default pattern</div></div></li><li><div><div class="para">Better for provisioning than recurring runtime tasks</div></div></li></ul><div class="para"><b>Main tradeoffs</b></div><div class="para">Pros</div><ul role="list"><li><div><div class="para">Cleaner and more maintainable than script-only bootstrap</div></div></li><li><div><div class="para">Better structure for provisioning</div></div></li><li><div><div class="para">Good multi-cloud pattern (same idea in AWS and GCP)</div></div></li></ul><div class="para">Cons</div><ul role="list"><li><div><div class="para">Only works if the image or AMI supports cloud-init</div></div></li><li><div><div class="para">Requires understanding cloud-init lifecycle and logs</div></div></li><li><div><div class="para">Behavior can differ slightly by distro or image</div></div></li></ul><div class="para"><b>Platform-specific notes</b></div><div class="para">GCP specifics</div><ul role="list"><li><div><div class="para">Passed via instance metadata, usually as <code class="qwLsO O_pm7" spellcheck="false">user-data</code></div></div></li><li><div><div class="para">Only works if the VM image has cloud-init installed and enabled</div></div></li><li><div><div class="para">Common on Ubuntu and Debian cloud images</div></div></li><li><div><div class="para">Do not assume support on minimal images, hardened custom images, or COS</div></div></li></ul><div class="para">AWS specifics</div><ul role="list"><li><div><div class="para">On most Linux AMIs, cloud-init reads and processes EC2 User Data</div></div></li><li><div><div class="para">Common on Ubuntu, Amazon Linux, Debian, and many marketplace Linux AMIs</div></div></li><li><div><div class="para">Do not assume support on custom stripped AMIs</div></div></li><li><div><div class="para">Windows is a different model and does not use the same cloud-init pattern</div></div></li></ul><h2 nodeid="168ea3f6-691a-46db-9894-962c309220ec" id="how-do-you-choose-between-startup-script-and-cloud-init">How do you choose between Startup Script and Cloud-init?</h2><div class="para"><b>Use Startup Script when</b></div><ul role="list"><li><div><div class="para">You need a quick bootstrap</div></div></li><li><div><div class="para">You want the most universal option</div></div></li><li><div><div class="para">The image does not support cloud-init</div></div></li><li><div><div class="para">The logic is small and simple</div></div></li></ul><div class="para"><b>Use Cloud-init when</b></div><ul role="list"><li><div><div class="para">You want cleaner, structured provisioning</div></div></li><li><div><div class="para">You are creating users, files, packages, and services</div></div></li><li><div><div class="para">You want a more maintainable setup</div></div></li><li><div><div class="para">The image supports cloud-init</div></div></li></ul><div class="para"><b>Practical rule</b></div><div class="para">If the boot logic is getting large, stop stuffing it into startup scripts. Bake more into the image or move provisioning to a proper config tool.</div><h2 nodeid="5da95583-79df-4540-8ebc-46edb5ff9be9" id="app-on-a-vm-accessing-a-storage-bucket-best-authentication">App on a VM accessing a storage bucket – best authentication?</h2><div class="para">Use the VM’s <b>managed identity</b>.</div><div class="para">Attach an IAM role or service account to the VM and give it least-privilege access to the bucket. The app uses short-lived credentials automatically. No hardcoded keys, no secrets in config.</div><div class="para">That means:</div><ul role="list"><li><div><div class="para">AWS: IAM Role via instance profile</div></div></li><li><div><div class="para">GCP: VM service account</div></div></li><li><div><div class="para">Azure: Managed identity</div></div></li></ul><h2 nodeid="25047b9a-8447-4757-afef-81780e867918" id="why-is-nat-gateway-expensive">Why is NAT Gateway expensive?</h2><div class="para"><b>Answer:</b> Because it’s fully managed, highly available, and horizontally scalable. You pay hourly plus per-GB processing (true for AWS, GCP, and Azure)</div><div class="para"><b>Follow-up:</b> Why do teams often underestimate NAT cost?</div><div class="para"><b>Follow-up Answer:</b> Because NAT charges per GB. Kubernetes, image pulls, logs, and retries silently push large volumes through NAT.</div><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../devops-interview-prep/clickhouse-cheat-sheet.html"><span>Previous</span><strong>ClickHouse - Cheat-sheet</strong></a>
+          <a class="pager-link" href="../devops-interview-prep/cloud-architecture-fundamentals.html"><span>Next</span><strong>Cloud Architecture Fundamentals</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#what-are-the-ways-to-run-startup-commands-in-aws-and-gcp">What are the ways to run startup commands in AWS and GCP?</a></li>
+          <li class="toc-level-3"><a href="#option-1-startup-script">Option 1: Startup Script</a></li>
+          <li class="toc-level-3"><a href="#option-2-cloud-init">Option 2: Cloud-init</a></li>
+          <li class="toc-level-2"><a href="#how-do-you-choose-between-startup-script-and-cloud-init">How do you choose between Startup Script and Cloud-init?</a></li>
+          <li class="toc-level-2"><a href="#app-on-a-vm-accessing-a-storage-bucket-best-authentication">App on a VM accessing a storage bucket – best authentication?</a></li>
+          <li class="toc-level-2"><a href="#why-is-nat-gateway-expensive">Why is NAT Gateway expensive?</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>
