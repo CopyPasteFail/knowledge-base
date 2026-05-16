@@ -31,6 +31,9 @@ class PlannedIngest:
     output_relpath: str
     title: str
     action: str
+    asset_source_dir: Path | None = None
+    asset_output_dir: Path | None = None
+    asset_output_name: str | None = None
 
 
 def run_git(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -97,6 +100,92 @@ def scan_inbox() -> list[Path]:
     if not INBOX_DIR.exists():
         return []
     return sorted(path for path in INBOX_DIR.rglob("*.html") if path.is_file())
+
+
+def asset_output_name_for(output_name: str) -> str:
+    return f"{Path(output_name).stem}_files"
+
+
+def candidate_asset_dirs(source_path: Path) -> list[Path]:
+    stem = source_path.stem
+    return [
+        source_path.with_name(f"{stem} files"),
+        source_path.with_name(f"{stem}_files"),
+        source_path.with_name(f"{stem}.files"),
+    ]
+
+
+def matching_asset_dir(source_path: Path) -> Path | None:
+    for path in candidate_asset_dirs(source_path):
+        if path.is_dir():
+            return path
+    return None
+
+
+def is_external_reference(value: str) -> bool:
+    normalized = value.strip().lower()
+    return (
+        not normalized
+        or normalized.startswith("#")
+        or normalized.startswith("/")
+        or normalized.startswith("//")
+        or normalized.startswith("data:")
+        or normalized.startswith("http://")
+        or normalized.startswith("https://")
+        or normalized.startswith("mailto:")
+        or normalized.startswith("tel:")
+    )
+
+
+def rewrite_asset_reference(value: str, item: PlannedIngest) -> str:
+    if not item.asset_source_dir or not item.asset_output_name:
+        return value
+
+    if is_external_reference(value):
+        return value
+
+    normalized = process_html.html.unescape(value).replace("\\", "/")
+    source_dir_name = item.asset_source_dir.name
+    source_dir_posix = source_dir_name.replace("\\", "/")
+
+    if normalized == source_dir_name or normalized == source_dir_posix:
+        return item.asset_output_name
+
+    prefixes = [f"{source_dir_name}/", f"{source_dir_posix}/"]
+    for prefix in prefixes:
+        if normalized.startswith(prefix):
+            return f"{item.asset_output_name}/{normalized[len(prefix):]}"
+
+    return normalized
+
+
+def rewrite_asset_references(html_text: str, item: PlannedIngest) -> str:
+    if not item.asset_source_dir:
+        return html_text
+
+    attr_pattern = process_html.re.compile(
+        r'(?P<attr>\b(?:src|href)\s*=\s*)(?P<quote>["\'])(?P<value>.*?)(?P=quote)',
+        flags=process_html.re.IGNORECASE | process_html.re.DOTALL,
+    )
+
+    def replace(match: process_html.re.Match[str]) -> str:
+        value = match.group("value")
+        rewritten = rewrite_asset_reference(value, item)
+        escaped = process_html.html.escape(rewritten, quote=True)
+        return f'{match.group("attr")}{match.group("quote")}{escaped}{match.group("quote")}'
+
+    return attr_pattern.sub(replace, html_text)
+
+
+def copy_article_assets(item: PlannedIngest) -> Path | None:
+    if not item.asset_source_dir or not item.asset_output_dir:
+        return None
+
+    if item.asset_output_dir.exists():
+        shutil.rmtree(item.asset_output_dir)
+
+    shutil.copytree(item.asset_source_dir, item.asset_output_dir)
+    return item.asset_output_dir
 
 
 def validate_inbox_files(files: list[Path]) -> None:
@@ -193,6 +282,9 @@ def plan_ingest(files: list[Path]) -> list[PlannedIngest]:
         html_text = source_path.read_text(encoding="utf-8", errors="ignore")
         title = process_html.extract_title(html_text, output_name)
         action = "overwrite" if output_relpath in existing else "create"
+        asset_source_dir = matching_asset_dir(source_path)
+        asset_output_name = asset_output_name_for(output_name) if asset_source_dir else None
+        asset_output_dir = output_path.with_name(asset_output_name) if asset_output_name else None
         planned.append(
             PlannedIngest(
                 source_path=source_path,
@@ -202,6 +294,9 @@ def plan_ingest(files: list[Path]) -> list[PlannedIngest]:
                 output_relpath=output_relpath,
                 title=title,
                 action=action,
+                asset_source_dir=asset_source_dir,
+                asset_output_dir=asset_output_dir,
+                asset_output_name=asset_output_name,
             )
         )
 
@@ -300,13 +395,18 @@ def generate(planned: list[PlannedIngest]) -> list[Path]:
     for item in planned:
         entry = by_relpath[item.output_relpath]
         entry["output_path"].parent.mkdir(parents=True, exist_ok=True)
+        rendered = process_html.render_article_page(entry, grouped, all_entries)
+        rendered = rewrite_asset_references(rendered, item)
         entry["output_path"].write_text(
-            process_html.render_article_page(entry, grouped, all_entries),
+            rendered,
             encoding="utf-8",
             newline="\n",
         )
         replace_embedded_nav(entry["output_path"])
         written.append(entry["output_path"])
+        copied_assets = copy_article_assets(item)
+        if copied_assets:
+            written.append(copied_assets)
 
     affected_sections = sorted({item.section for item in planned})
     for section in affected_sections:
@@ -329,6 +429,10 @@ def print_plan(planned: list[PlannedIngest]) -> None:
         print(f"[{item.section}] {item.action}")
         print(f"  source: {rel_source}")
         print(f"  output: {rel_output}")
+        if item.asset_source_dir and item.asset_output_dir:
+            rel_asset_source = item.asset_source_dir.relative_to(REPO_ROOT).as_posix()
+            rel_asset_output = item.asset_output_dir.relative_to(REPO_ROOT).as_posix()
+            print(f"  assets: {rel_asset_source} -> {rel_asset_output}")
         print(f"  title:  {item.title}")
         print()
 
