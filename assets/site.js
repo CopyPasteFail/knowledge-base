@@ -86,8 +86,30 @@ ${sectionsHtml}
     });
   }
 
+  function loadDocsNav() {
+    if (!document.querySelector("[data-docs-nav]")) {
+      return;
+    }
+
+    if (window.DEVBRAIN_NAVIGATION) {
+      renderDocsNav();
+      return;
+    }
+
+    const currentScript = document.currentScript;
+    const src = currentScript && currentScript.getAttribute("src");
+    const navSrc = src ? src.replace(/site\.js(?:\?.*)?$/, "navigation-data.js") : "assets/navigation-data.js";
+    const script = document.createElement("script");
+    script.src = navSrc;
+    script.onload = renderDocsNav;
+    script.onerror = () => {
+      console.warn("DevBrain navigation data was not found.");
+    };
+    document.head.appendChild(script);
+  }
+
   setTheme(root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : preferredTheme(), false);
-  renderDocsNav();
+  loadDocsNav();
 
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
