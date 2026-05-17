@@ -5,9 +5,19 @@ window.DEVBRAIN_NAVIGATION = {
       "title": "Ai",
       "items": [
         {
+          "title": "Agent & Application Orchestration",
+          "href": "ai/agent-application-orchestration.html",
+          "output": "agent-application-orchestration.html"
+        },
+        {
           "title": "AGENTS.md guide",
           "href": "ai/agentsmd-guide.html",
           "output": "agentsmd-guide.html"
+        },
+        {
+          "title": "AI - Videos, Articles & Podcasts",
+          "href": "ai/ai-videos-articles-podcasts.html",
+          "output": "ai-videos-articles-podcasts.html"
         },
         {
           "title": "AI Video & Image Generators",
