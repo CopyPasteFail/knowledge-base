@@ -20,6 +20,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "ai-videos-articles-podcasts.html"
         },
         {
+          "title": "AI Safety - Sycophantic, Misaligned, and Adversarial",
+          "href": "ai/ai-safety-sycophantic-misaligned-and-adversarial.html",
+          "output": "ai-safety-sycophantic-misaligned-and-adversarial.html"
+        },
+        {
           "title": "AI Video & Image Generators",
           "href": "ai/ai-video-image-generators.html",
           "output": "ai-video-image-generators.html"
@@ -35,9 +40,19 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "coding-agent-agentsmd-creationrevisio.html"
         },
         {
+          "title": "CoT (Chain-of-Thought) and ReAct (Reason + Act) Prompting",
+          "href": "ai/cot-chain-of-thought-and-react-reason-act-prompting.html",
+          "output": "cot-chain-of-thought-and-react-reason-act-prompting.html"
+        },
+        {
           "title": "Local, CLI, and Agentic LLM Tools",
           "href": "ai/local-cli-and-agentic-llm-tools.html",
           "output": "local-cli-and-agentic-llm-tools.html"
+        },
+        {
+          "title": "RAG (Retrieval-Augmented Generation)",
+          "href": "ai/rag-retrieval-augmented-generation.html",
+          "output": "rag-retrieval-augmented-generation.html"
         },
         {
           "title": "Remotion with coding agents tutorial",
