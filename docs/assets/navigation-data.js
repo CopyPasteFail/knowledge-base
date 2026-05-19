@@ -40,6 +40,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "coding-agent-agentsmd-creationrevisio.html"
         },
         {
+          "title": "Context Rot",
+          "href": "ai/context-rot.html",
+          "output": "context-rot.html"
+        },
+        {
           "title": "CoT (Chain-of-Thought) and ReAct (Reason + Act) Prompting",
           "href": "ai/cot-chain-of-thought-and-react-reason-act-prompting.html",
           "output": "cot-chain-of-thought-and-react-reason-act-prompting.html"
