@@ -328,9 +328,9 @@ def sanitize_evernote_links(html_text: str) -> str:
         r"""
         <a\b
         (?=[^>]*\bhref\s*=\s*(?:
-            ["']\s*evernote:///[^"']*["']
+            ["']\s*(?:evernote:///|https://share\.evernote\.com/)[^"']*["']
             |
-            evernote:///[^\s>]+
+            (?:evernote:///|https://share\.evernote\.com/)[^\s>]+
         ))
         [^>]*>
         (?P<body>.*?)
@@ -340,7 +340,12 @@ def sanitize_evernote_links(html_text: str) -> str:
     )
 
     html_text = anchor_pattern.sub(lambda match: match.group("body"), html_text)
-    return re.sub(r"evernote:///[^\s<>\"']+", "", html_text, flags=re.IGNORECASE)
+    return re.sub(
+        r"(?:evernote:///|https://share\.evernote\.com/)[^\s<>\"']+",
+        "",
+        html_text,
+        flags=re.IGNORECASE,
+    )
 
 
 def cleanup_dangling_toc_wrappers(html_text: str) -> str:

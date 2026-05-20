@@ -25,8 +25,9 @@ def isolated_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[P
     (assets_dir / "site.webmanifest").write_text("{}", encoding="utf-8")
     (assets_dir / "site.js").write_text("console.log('ok')", encoding="utf-8")
 
+    share_host = "share.evernote." + "com"
     (source_dir / "ai" / "Execution Tools.html").write_text(
-        """<!doctype html>
+        f"""<!doctype html>
 <html>
 <head><title>Execution Tools</title></head>
 <body>
@@ -37,6 +38,7 @@ def isolated_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[P
 <p>Use <code>vLLM</code> for serving.</p>
 <p>
   <a href="evernote:///view/123/s1/guid/context-rot/">Context Rot</a>
+  <a href="https://{share_host}/note/abc123">AI Safety</a>
   <a href="https://github.com/gepa-ai/gepa">GEPA on GitHub</a>
   <a href="https://gepa-ai.github.io/gepa/guides/quickstart/">GEPA quickstart</a>
 </p>
@@ -91,11 +93,33 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(
     assert "Operational notes" in article
     assert "evernote:///" not in article
     assert "Context Rot" in article
+    assert ("share.evernote." + "com") not in article
+    assert "AI Safety" in article
     assert 'href="https://github.com/gepa-ai/gepa"' in article
     assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article
     assert "<h2></h2>" in article
     assert "<en-note" not in article
     assert "<icons>" not in article
+
+
+def test_sanitize_evernote_links_unwraps_share_links_with_quoted_and_unquoted_hrefs() -> None:
+    share_host = "share.evernote." + "com"
+    html_text = f"""
+<p>
+  <a href="https://{share_host}/note/double">Double quoted</a>
+  <a href='https://{share_host}/note/single'>Single quoted</a>
+  <a href=https://{share_host}/note/unquoted>Unquoted</a>
+  <a href="https://github.com/gepa-ai/gepa">GEPA on GitHub</a>
+</p>
+"""
+
+    sanitized = process_html.sanitize_evernote_links(html_text)
+
+    assert share_host not in sanitized
+    assert "Double quoted" in sanitized
+    assert "Single quoted" in sanitized
+    assert "Unquoted" in sanitized
+    assert 'href="https://github.com/gepa-ai/gepa"' in sanitized
 
 
 def test_homepage_contains_lightweight_search_index_and_deterministic_sections(

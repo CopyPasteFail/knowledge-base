@@ -77,9 +77,10 @@ def test_validate_inbox_rejects_batch_slug_collision(tmp_path: Path, monkeypatch
 
 def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     inbox, docs, _assets = configure_tmp_repo(tmp_path, monkeypatch)
+    share_host = "share.evernote." + "com"
     source = inbox / "ai" / "Execution Tools.html"
     source.write_text(
-        """<!doctype html>
+        f"""<!doctype html>
 <html>
 <head><title>Execution Tools</title></head>
 <body><en-note>
@@ -88,6 +89,7 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
 <p>Use vLLM.</p>
 <p>
   <a href="evernote:///view/123/s1/guid/context-rot/">Context Rot</a>
+  <a href="https://{share_host}/note/abc123">AI Safety</a>
   <a href="https://github.com/gepa-ai/gepa">GEPA on GitHub</a>
   <a href="https://gepa-ai.github.io/gepa/guides/quickstart/">GEPA quickstart</a>
 </p>
@@ -111,6 +113,8 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     assert "Runtime choices" in article_html
     assert "evernote:///" not in article_html
     assert "Context Rot" in article_html
+    assert share_host not in article_html
+    assert "AI Safety" in article_html
     assert 'href="https://github.com/gepa-ai/gepa"' in article_html
     assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article_html
     assert "<en-note" not in article_html
@@ -120,15 +124,18 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     assert "Execution Tools.html" not in article_html
     section_html = section_index.read_text(encoding="utf-8")
     assert "evernote:///" not in section_html
+    assert share_host not in section_html
     assert "Source:" not in section_html
     assert "Execution Tools.html" not in section_html
     root_html = (docs / "index.html").read_text(encoding="utf-8")
     assert "evernote:///" not in root_html
+    assert share_host not in root_html
     assert "Search notes and topics..." in root_html
     nav_js = nav_data.read_text(encoding="utf-8")
     assert "window.DEVBRAIN_NAVIGATION" in nav_js
     assert "execution-tools.html" in nav_js
     assert "evernote:///" not in nav_js
+    assert share_host not in nav_js
     assert section_index.exists()
     assert (docs / "index.html").exists()
 
