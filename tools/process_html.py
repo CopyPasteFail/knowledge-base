@@ -323,6 +323,26 @@ def strip_evernote_shell_artifacts(html_text: str) -> str:
     return remove_empty_wrappers(html_text)
 
 
+def sanitize_evernote_links(html_text: str) -> str:
+    anchor_pattern = re.compile(
+        r"""
+        <a\b
+        (?=[^>]*\bhref\s*=\s*(?:
+            ["']\s*evernote:///[^"']*["']
+            |
+            evernote:///[^\s>]+
+        ))
+        [^>]*>
+        (?P<body>.*?)
+        </a>
+        """,
+        flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
+    )
+
+    html_text = anchor_pattern.sub(lambda match: match.group("body"), html_text)
+    return re.sub(r"evernote:///[^\s<>\"']+", "", html_text, flags=re.IGNORECASE)
+
+
 def cleanup_dangling_toc_wrappers(html_text: str) -> str:
     html_text = re.sub(
         r"(</h1>)\s*</div>\s*(<h1\b)",
@@ -588,6 +608,7 @@ def render_article_page(
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
+    processed_html = sanitize_evernote_links(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = remove_empty_wrappers(processed_html)
 
@@ -661,6 +682,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> Artic
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
+    processed_html = sanitize_evernote_links(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = ensure_head_assets(processed_html, depth)
     processed_html = ensure_marker(processed_html)

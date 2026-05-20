@@ -82,7 +82,16 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
         """<!doctype html>
 <html>
 <head><title>Execution Tools</title></head>
-<body><en-note><h1>Execution Tools</h1><h2>Runtime choices</h2><p>Use vLLM.</p></en-note></body>
+<body><en-note>
+<h1>Execution Tools</h1>
+<h2>Runtime choices</h2>
+<p>Use vLLM.</p>
+<p>
+  <a href="evernote:///view/123/s1/guid/context-rot/">Context Rot</a>
+  <a href="https://github.com/gepa-ai/gepa">GEPA on GitHub</a>
+  <a href="https://gepa-ai.github.io/gepa/guides/quickstart/">GEPA quickstart</a>
+</p>
+</en-note></body>
 </html>
 """,
         encoding="utf-8",
@@ -100,18 +109,26 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     article_html = article.read_text(encoding="utf-8")
     assert "Execution Tools" in article_html
     assert "Runtime choices" in article_html
+    assert "evernote:///" not in article_html
+    assert "Context Rot" in article_html
+    assert 'href="https://github.com/gepa-ai/gepa"' in article_html
+    assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article_html
     assert "<en-note" not in article_html
     assert "data-docs-nav" in article_html
     assert "desktop-docs-nav" not in article_html
     assert "Source:" not in article_html
     assert "Execution Tools.html" not in article_html
     section_html = section_index.read_text(encoding="utf-8")
+    assert "evernote:///" not in section_html
     assert "Source:" not in section_html
     assert "Execution Tools.html" not in section_html
-    assert "Search notes and topics..." in (docs / "index.html").read_text(encoding="utf-8")
+    root_html = (docs / "index.html").read_text(encoding="utf-8")
+    assert "evernote:///" not in root_html
+    assert "Search notes and topics..." in root_html
     nav_js = nav_data.read_text(encoding="utf-8")
     assert "window.DEVBRAIN_NAVIGATION" in nav_js
     assert "execution-tools.html" in nav_js
+    assert "evernote:///" not in nav_js
     assert section_index.exists()
     assert (docs / "index.html").exists()
 

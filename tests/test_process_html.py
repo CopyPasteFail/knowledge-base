@@ -35,6 +35,11 @@ def isolated_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[P
 <h1>Execution Tools</h1>
 <h2>Runtime choices</h2>
 <p>Use <code>vLLM</code> for serving.</p>
+<p>
+  <a href="evernote:///view/123/s1/guid/context-rot/">Context Rot</a>
+  <a href="https://github.com/gepa-ai/gepa">GEPA on GitHub</a>
+  <a href="https://gepa-ai.github.io/gepa/guides/quickstart/">GEPA quickstart</a>
+</p>
 <h2></h2>
 <h3>Operational notes</h3>
 <pre><code>python app.py</code></pre>
@@ -84,6 +89,10 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(
     assert 'href="execution-tools.html" class="tree-link is-active"' in article
     assert 'href="#runtime-choices"' in article
     assert "Operational notes" in article
+    assert "evernote:///" not in article
+    assert "Context Rot" in article
+    assert 'href="https://github.com/gepa-ai/gepa"' in article
+    assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article
     assert "<h2></h2>" in article
     assert "<en-note" not in article
     assert "<icons>" not in article
