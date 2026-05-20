@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prompt Engineering · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="ai" data-current-output="prompt-engineering.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Ai</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Ai</p>
+          <h1>Prompt Engineering</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="Prompt Engineering">
+      
+      
+          <h1 nodeid="c37d8b83-78cc-4d99-bc56-b0bf18c46240">Links</h1><ul role="list"><li><div><div class="para">CoT (Chain-of-Thought) and ReAct (Reason + Act) Prompting </div></div></li><li><div><div class="para">Context Rot</div></div></li><li><div><div class="para">AI Safety - Sycophantic, Misaligned, and Adversarial</div></div></li></ul><h1 nodeid="795cdc9b-147a-49f0-9d97-bc9462c0be80">Tools</h1><h2 nodeid="45818501-82f4-49c7-b90b-962b131b432d" id="gepa-ai">GEPA-AI</h2><div class="para">GEPA (Genetic-Pareto) is a framework for optimizing any system with textual parameters (prompts, code, agent architectures) against any evaluation metric. Unlike RL or gradient-based methods, GEPA uses LLMs to <i>read</i> full execution traces (error messages, profiling data, reasoning logs) to diagnose why a candidate failed and propose targeted fixes.</div><h3 nodeid="7d598cf4-48d7-4c30-b5e4-81427eb519cc" id="useful-links">Useful Links</h3><ul role="list"><li><div><div class="para">GitHub: <a href="https://github.com/gepa-ai/gepa" rev="en_rl_none" class="en-link">https://github.com/gepa-ai/gepa</a></div></div></li><li><div><div class="para">Quick Start: <a href="https://gepa-ai.github.io/gepa/guides/quickstart/" rev="en_rl_none" class="en-link">https://gepa-ai.github.io/gepa/guides/quickstart/</a></div></div></li></ul><h3 nodeid="bb4c01f1-24c5-4aee-9bdf-000b04c188f1" id="key-features">Key Features</h3><ul role="list"><li><div><div class="para">Uses LLM-based reflection and Pareto-efficient evolutionary search.</div></div></li><li><div><div class="para">Optimizes prompts, code, agent architectures, and scheduling policies.</div></div></li><li><div><div class="para">Integrates well with frameworks like DSPy, MLflow, and Pydantic.</div></div></li><li><div><div class="para">Much cheaper/faster than Reinforcement Learning (100-500 evaluations vs 10k+).</div></div></li></ul><h3 nodeid="db76c624-9aaa-4f08-9554-21504721bac8" id="how-it-works">How it works</h3><ol role="list"><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Select: A candidate from the Pareto frontier.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Execute: On a minibatch, capturing full execution traces.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Reflect: An LLM reads the traces and diagnoses failures.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Mutate: Generate an improved candidate informed by lessons.</div></div></li><li><div class="list-counter-wrapper list-counter-wrapper-with-p"><div class="list-counter"></div></div><div><div class="para">Accept: Add to the pool if improved, update Pareto front.</div></div></li></ol>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../ai/local-cli-and-agentic-llm-tools.html"><span>Previous</span><strong>Local, CLI, and Agentic LLM Tools</strong></a>
+          <a class="pager-link" href="../ai/rag-retrieval-augmented-generation.html"><span>Next</span><strong>RAG (Retrieval-Augmented Generation)</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#gepa-ai">GEPA-AI</a></li>
+          <li class="toc-level-3"><a href="#useful-links">Useful Links</a></li>
+          <li class="toc-level-3"><a href="#key-features">Key Features</a></li>
+          <li class="toc-level-3"><a href="#how-it-works">How it works</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

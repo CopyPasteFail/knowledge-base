@@ -55,6 +55,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "local-cli-and-agentic-llm-tools.html"
         },
         {
+          "title": "Prompt Engineering",
+          "href": "ai/prompt-engineering.html",
+          "output": "prompt-engineering.html"
+        },
+        {
           "title": "RAG (Retrieval-Augmented Generation)",
           "href": "ai/rag-retrieval-augmented-generation.html",
           "output": "rag-retrieval-augmented-generation.html"
