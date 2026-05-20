@@ -50,6 +50,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "cot-chain-of-thought-and-react-reason-act-prompting.html"
         },
         {
+          "title": "LLM Deployment Overview",
+          "href": "ai/llm-deployment-overview.html",
+          "output": "llm-deployment-overview.html"
+        },
+        {
           "title": "Local, CLI, and Agentic LLM Tools",
           "href": "ai/local-cli-and-agentic-llm-tools.html",
           "output": "local-cli-and-agentic-llm-tools.html"
