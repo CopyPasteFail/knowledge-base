@@ -40,6 +40,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "coding-agent-agentsmd-creationrevisio.html"
         },
         {
+          "title": "Coding-agent skills, plugins, and tools for clean engineering",
+          "href": "ai/coding-agent-skills-plugins-and-tools-for-clean-engineering.html",
+          "output": "coding-agent-skills-plugins-and-tools-for-clean-engineering.html"
+        },
+        {
           "title": "Context Rot",
           "href": "ai/context-rot.html",
           "output": "context-rot.html"
