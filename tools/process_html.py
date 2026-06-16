@@ -339,13 +339,58 @@ def sanitize_evernote_links(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
     )
 
-    html_text = anchor_pattern.sub(lambda match: match.group("body"), html_text)
+    html_text = anchor_pattern.sub("", html_text)
     return re.sub(
         r"(?:evernote:///|https://share\.evernote\.com/)[^\s<>\"']+",
         "",
         html_text,
         flags=re.IGNORECASE,
     )
+
+
+def has_meaningful_content(html_text: str) -> bool:
+    if clean_text(html_text):
+        return True
+
+    return bool(
+        re.search(
+            r"<(?:img|video|audio|iframe|canvas|svg|object|embed)\b",
+            html_text,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def remove_empty_heading_sections(html_text: str) -> str:
+    heading_pattern = re.compile(
+        r"<h(?P<level>[1-6])\b[^>]*>.*?</h(?P=level)>",
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    previous = None
+    while previous != html_text:
+        previous = html_text
+        headings = list(heading_pattern.finditer(html_text))
+
+        for heading_index in range(len(headings) - 1, -1, -1):
+            heading = headings[heading_index]
+            heading_level = int(heading.group("level"))
+            section_end = len(html_text)
+
+            for next_heading in headings[heading_index + 1 :]:
+                next_heading_level = int(next_heading.group("level"))
+                if next_heading_level <= heading_level:
+                    section_end = next_heading.start()
+                    break
+
+            section_html = html_text[heading.end() : section_end]
+            if has_meaningful_content(section_html):
+                continue
+
+            html_text = html_text[: heading.start()] + html_text[section_end:]
+            break
+
+    return html_text
 
 
 def cleanup_dangling_toc_wrappers(html_text: str) -> str:
@@ -614,6 +659,7 @@ def render_article_page(
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
     processed_html = sanitize_evernote_links(processed_html)
+    processed_html = remove_empty_heading_sections(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = remove_empty_wrappers(processed_html)
 
@@ -688,6 +734,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> Artic
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
     processed_html = sanitize_evernote_links(processed_html)
+    processed_html = remove_empty_heading_sections(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
     processed_html = ensure_head_assets(processed_html, depth)
     processed_html = ensure_marker(processed_html)

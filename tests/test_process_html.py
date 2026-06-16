@@ -92,9 +92,9 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(
     assert 'href="#runtime-choices"' in article
     assert "Operational notes" in article
     assert "evernote:///" not in article
-    assert "Context Rot" in article
+    assert "Context Rot" not in article
     assert ("share.evernote." + "com") not in article
-    assert "AI Safety" in article
+    assert "AI Safety" not in article
     assert 'href="https://github.com/gepa-ai/gepa"' in article
     assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article
     assert "<h2></h2>" in article
@@ -102,7 +102,7 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(
     assert "<icons>" not in article
 
 
-def test_sanitize_evernote_links_unwraps_share_links_with_quoted_and_unquoted_hrefs() -> None:
+def test_sanitize_evernote_links_removes_share_links_with_quoted_and_unquoted_hrefs() -> None:
     share_host = "share.evernote." + "com"
     html_text = f"""
 <p>
@@ -116,10 +116,51 @@ def test_sanitize_evernote_links_unwraps_share_links_with_quoted_and_unquoted_hr
     sanitized = process_html.sanitize_evernote_links(html_text)
 
     assert share_host not in sanitized
-    assert "Double quoted" in sanitized
-    assert "Single quoted" in sanitized
-    assert "Unquoted" in sanitized
+    assert "Double quoted" not in sanitized
+    assert "Single quoted" not in sanitized
+    assert "Unquoted" not in sanitized
     assert 'href="https://github.com/gepa-ai/gepa"' in sanitized
+
+
+def test_generator_removes_empty_hierarchical_sections(isolated_site: Path) -> None:
+    source = isolated_site.parent / "raw-html" / "ai" / "Private Links Only.html"
+    share_host = "share.evernote." + "com"
+    source.write_text(
+        f"""<!doctype html>
+<html>
+<head><title>Private Links Only</title></head>
+<body>
+<en-note class="peso">
+<h1>Private Links Only</h1>
+<h1>Reference Bucket</h1>
+<h2>Related notes</h2>
+<ul role="list">
+  <li><div><div class="para"><a href="https://{share_host}/note/abc123">Private note</a></div></div></li>
+</ul>
+<h1>Useful stuff</h1>
+<h2>External links</h2>
+<ul role="list">
+  <li><a href="https://example.com/">Example</a></li>
+</ul>
+</en-note>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    process_html.main()
+
+    article = (isolated_site / "ai" / "private-links-only.html").read_text(encoding="utf-8")
+    assert "Reference Bucket" not in article
+    assert "Related notes" not in article
+    assert "Private note" not in article
+    assert share_host not in article
+    assert 'href="#reference-bucket"' not in article
+    assert 'href="#related-notes"' not in article
+    assert "Useful stuff" in article
+    assert "External links" in article
+    assert 'href="https://example.com/"' in article
 
 
 def test_homepage_contains_lightweight_search_index_and_deterministic_sections(

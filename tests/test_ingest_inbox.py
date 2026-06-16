@@ -112,9 +112,9 @@ def test_generate_writes_previewable_article_and_indexes(tmp_path: Path, monkeyp
     assert "Execution Tools" in article_html
     assert "Runtime choices" in article_html
     assert "evernote:///" not in article_html
-    assert "Context Rot" in article_html
+    assert "Context Rot" not in article_html
     assert share_host not in article_html
-    assert "AI Safety" in article_html
+    assert "AI Safety" not in article_html
     assert 'href="https://github.com/gepa-ai/gepa"' in article_html
     assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article_html
     assert "<en-note" not in article_html

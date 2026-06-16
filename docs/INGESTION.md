@@ -59,7 +59,7 @@ become:
 
 When you overwrite the same note later, the generated image folder is replaced so removed or renamed images do not leave stale public files behind.
 
-During HTML cleanup, local Evernote app links such as `evernote:///view/...` and public Evernote share links are removed from public output while keeping their readable link text. Normal external links, including other `https://` links, are preserved.
+During HTML cleanup, local Evernote app links such as `evernote:///view/...` and public Evernote share links are removed from public output, including their readable link text. If that leaves a heading section empty, the empty heading is removed according to heading hierarchy, and empty parent headings are removed as well. Normal external links, including other `https://` links, are preserved.
 
 ## Normal workflow
 
