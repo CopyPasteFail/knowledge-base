@@ -214,6 +214,11 @@ window.DEVBRAIN_NAVIGATION = {
           "title": "Terraform - Cheat-sheet",
           "href": "devops-interview-prep/terraform-cheat-sheet.html",
           "output": "terraform-cheat-sheet.html"
+        },
+        {
+          "title": "Useful AI Agents Skills/Plugins/Workflows",
+          "href": "devops-interview-prep/useful-ai-agents-skillspluginsworkflows.html",
+          "output": "useful-ai-agents-skillspluginsworkflows.html"
         }
       ]
     }
