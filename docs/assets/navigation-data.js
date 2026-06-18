@@ -55,6 +55,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "cot-chain-of-thought-and-react-reason-act-prompting.html"
         },
         {
+          "title": "Execution Tools",
+          "href": "ai/execution-tools.html",
+          "output": "execution-tools.html"
+        },
+        {
           "title": "LLM Deployment Overview",
           "href": "ai/llm-deployment-overview.html",
           "output": "llm-deployment-overview.html"
