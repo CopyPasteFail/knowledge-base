@@ -45,6 +45,11 @@ def isolated_site(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[P
 <h2></h2>
 <h3>Operational notes</h3>
 <pre><code>python app.py</code></pre>
+<en-codeblock spellcheck="false">
+  <div data-plaintext="true">Telegram message</div>
+  <div data-plaintext="true">  -&gt; n8n workflow</div>
+  <div data-plaintext="true">  -&gt; OpenRouter council</div>
+</en-codeblock>
 </en-note>
 </body>
 </html>
@@ -99,6 +104,8 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(
     assert 'href="https://gepa-ai.github.io/gepa/guides/quickstart/"' in article
     assert "<h2></h2>" in article
     assert "<en-note" not in article
+    assert "<en-codeblock" not in article
+    assert "<pre><code>Telegram message\n  -&gt; n8n workflow\n  -&gt; OpenRouter council</code></pre>" in article
     assert "<icons>" not in article
 
 

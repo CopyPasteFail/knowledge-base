@@ -20,6 +20,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "ai-videos-articles-podcasts.html"
         },
         {
+          "title": "AI Council - Tools and Solutions",
+          "href": "ai/ai-council-tools-and-solutions.html",
+          "output": "ai-council-tools-and-solutions.html"
+        },
+        {
           "title": "AI Safety - Sycophantic, Misaligned, and Adversarial",
           "href": "ai/ai-safety-sycophantic-misaligned-and-adversarial.html",
           "output": "ai-safety-sycophantic-misaligned-and-adversarial.html"

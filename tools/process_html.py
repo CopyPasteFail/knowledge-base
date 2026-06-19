@@ -323,6 +323,31 @@ def strip_evernote_shell_artifacts(html_text: str) -> str:
     return remove_empty_wrappers(html_text)
 
 
+def convert_evernote_codeblocks(html_text: str) -> str:
+    def line_text(line_html: str) -> str:
+        line_html = re.sub(r"<br\s*/?>", "\n", line_html, flags=re.IGNORECASE)
+        line_html = re.sub(r"<[^>]+>", "", line_html)
+        return html.unescape(line_html)
+
+    def replace_codeblock(match: re.Match[str]) -> str:
+        body = match.group("body")
+        divs = re.findall(
+            r"<div\b[^>]*>(.*?)</div>",
+            body,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        lines = [line_text(div).rstrip() for div in divs] if divs else [line_text(body).strip()]
+        code_text = "\n".join(lines)
+        return f"<pre><code>{html.escape(code_text)}</code></pre>"
+
+    return re.sub(
+        r"<en-codeblock\b[^>]*>(?P<body>.*?)</en-codeblock>",
+        replace_codeblock,
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+
 def sanitize_evernote_links(html_text: str) -> str:
     anchor_pattern = re.compile(
         r"""
@@ -658,6 +683,7 @@ def render_article_page(
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
+    processed_html = convert_evernote_codeblocks(processed_html)
     processed_html = sanitize_evernote_links(processed_html)
     processed_html = remove_empty_heading_sections(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
@@ -733,6 +759,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> Artic
     processed_html = strip_evernote_heading_controls(processed_html)
     processed_html = strip_evernote_generated_toc(processed_html)
     processed_html = strip_evernote_shell_artifacts(processed_html)
+    processed_html = convert_evernote_codeblocks(processed_html)
     processed_html = sanitize_evernote_links(processed_html)
     processed_html = remove_empty_heading_sections(processed_html)
     processed_html = cleanup_dangling_toc_wrappers(processed_html)
