@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Index · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="ai" data-current-output="evernote-index.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Ai</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Ai</p>
+          <h1>Index</h1>
+        </header>
+        <div class="article-content">
+
+    <ul>
+      <li><a href="Misc. Info & Other Tools.html">Misc. Info &amp; Other Tools</a></li>
+      <li><a href="Local, CLI, and Agentic LLM Tools.html">Local, CLI, and Agentic LLM Tools</a></li>
+      <li><a href="Coding-agent skills, plugins, and tools for clean engineering.html">Coding-agent skills, plugins, and tools for clean engineering</a></li>
+      <li><a href="AI Agent Observability and Prompt Management.html">AI Agent Observability and Prompt Management</a></li>
+      <li><a href="Useful AI Agents SkillsPluginsWorkflows.html">Useful AI Agents Skills/Plugins/Workflows</a></li>
+    </ul>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../ai/execution-tools.html"><span>Previous</span><strong>Execution Tools</strong></a>
+          <a class="pager-link" href="../ai/llm-deployment-overview.html"><span>Next</span><strong>LLM Deployment Overview</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <p class="toc-empty">No section headings</p>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

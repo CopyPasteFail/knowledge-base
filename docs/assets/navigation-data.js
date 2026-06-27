@@ -20,6 +20,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "ai-videos-articles-podcasts.html"
         },
         {
+          "title": "AI Agent Observability and Prompt Management",
+          "href": "ai/ai-agent-observability-and-prompt-management.html",
+          "output": "ai-agent-observability-and-prompt-management.html"
+        },
+        {
           "title": "AI Council - Tools and Solutions",
           "href": "ai/ai-council-tools-and-solutions.html",
           "output": "ai-council-tools-and-solutions.html"
@@ -65,6 +70,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "execution-tools.html"
         },
         {
+          "title": "Index",
+          "href": "ai/evernote-index.html",
+          "output": "evernote-index.html"
+        },
+        {
           "title": "LLM Deployment Overview",
           "href": "ai/llm-deployment-overview.html",
           "output": "llm-deployment-overview.html"
@@ -73,6 +83,11 @@ window.DEVBRAIN_NAVIGATION = {
           "title": "Local, CLI, and Agentic LLM Tools",
           "href": "ai/local-cli-and-agentic-llm-tools.html",
           "output": "local-cli-and-agentic-llm-tools.html"
+        },
+        {
+          "title": "Misc. Info & Other Tools",
+          "href": "ai/misc-info-other-tools.html",
+          "output": "misc-info-other-tools.html"
         },
         {
           "title": "Prompt Engineering",

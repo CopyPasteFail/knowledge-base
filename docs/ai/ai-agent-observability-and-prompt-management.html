@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Agent Observability and Prompt Management · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="ai" data-current-output="ai-agent-observability-and-prompt-management.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Ai</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Ai</p>
+          <h1>AI Agent Observability and Prompt Management</h1>
+        </header>
+        <div class="article-content">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta itemprop="application" content="Evernote">
+    <meta itemprop="export-data" content="20260627T075809Z">
+    <meta itemprop="version" content="11.21.5">
+    
+  </head>
+  <body>
+    
+      
+      <meta itemprop="title" content="AI Agent Observability and Prompt Management">
+      
+      
+          </div><h1 nodeid="0796aadd-b41e-41ef-9e04-67ee02efca86">Tools</h1><h2 nodeid="3d2286be-f4f7-4342-a8cb-7c9b683ce8b4" id="simple-rule-of-thumb"><span data-fontsize="true">Simple Rule of Thumb</span></h2><ul role="list"><li><div><div class="para">Use <b><a href="https://www.agentops.ai/" rev="en_rl_none" class="en-link">AgentOps</a></b> when the question is: “What happened inside my agent run?”</div></div></li><li><div><div class="para">Use <b><a href="https://arize.com/" rev="en_rl_none" class="en-link">Arize AX</a></b> when the question is: “How is my AI system behaving in production?”</div></div></li><li><div><div class="para">Use <b><a href="https://freeplay.ai/" rev="en_rl_none" class="en-link">Freeplay</a></b> when the question is: “How do we manage, test, and improve prompts as a product team?”</div></div></li></ul><h2 nodeid="915a561e-2832-4939-ab22-7f0a132e73a2" id="agentops">AgentOps</h2><ul role="list"><li><div><div class="para"><b>TL;DR</b>: Agent observability and debugging</div></div></li><li><div><div class="para"><b>Official site:</b> <a href="https://www.agentops.ai/" rev="en_rl_none" class="en-link">AgentOps</a></div></div></li><li><div><div class="para"><b>Docs:</b> <a href="https://docs.agentops.ai/v2/introduction" rev="en_rl_none" class="en-link">AgentOps Docs</a></div></div></li><li><div><div class="para"><b>GitHub:</b> <a href="https://github.com/AgentOps-AI/agentops" rev="en_rl_none" class="en-link">agentops-ai/agentops</a></div></div></li></ul><div class="para"><b>What it is:</b> AgentOps is a developer-focused platform for AI agent observability. It supports integrations with frameworks like OpenAI, CrewAI, AutoGen, and many LLM/framework providers. It is designed to help developers test, debug, monitor, and evaluate AI agents and LLM applications from prototype to production.</div><div class="para"><b>Classification:</b></div><ul role="list"><li><div><div class="para"><b>Category:</b> AgentOps / AI agent observability / LLM observability</div></div></li><li><div><div class="para"><b>Core use case:</b> Debugging and monitoring agent runs</div></div></li><li><div><div class="para"><b>Strength:</b> Step-by-step inspection of agent behavior, including traces, tool calls, latency, errors, and cost</div></div></li><li><div><div class="para"><b>Best fit:</b> Agent-heavy applications where the main problem is understanding what the agent did and why</div></div></li><li><div><div class="para"><b>Less central:</b> Product prompt workflow, broad enterprise ML governance, traditional ML observability</div></div></li></ul><div class="para"><b>Example use case:</b> You have a CrewAI agent that researches companies, calls tools, writes summaries, and sometimes fails. AgentOps helps you inspect the full run: which tool call failed, where latency spiked, which model response caused the bad branch, and how much the run cost.</div><h2 nodeid="1c24b0ea-4440-4d39-91da-0f0a982b2ef8" id="arize-ax">Arize AX</h2><ul role="list"><li><div><div class="para"><b>TL;DR</b>: Enterprise AI observability and evaluation</div></div></li><li><div><div class="para"><b>Official site:</b> <a href="https://arize.com/" rev="en_rl_none" class="en-link">Arize AI</a></div></div></li><li><div><div class="para"><b>Product:</b> <a href="https://arize.com/" rev="en_rl_none" class="en-link">Arize AX</a></div></div></li><li><div><div class="para"><b>Open-source project:</b> <a href="https://arize.com/phoenix/" rev="en_rl_none" class="en-link">Arize Phoenix</a> / <a href="https://github.com/Arize-ai/phoenix" rev="en_rl_none" class="en-link">GitHub</a></div></div></li></ul><div class="para"><b>What it is:</b> Arize AX is a comprehensive AI observability and evaluation platform that extends beyond agents to include generative AI, traditional ML, and computer vision. It is built for enterprise-scale use and emphasizes production monitoring, evaluation, debugging, and governance.</div><div class="para"><b>Classification:</b></div><ul role="list"><li><div><div class="para"><b>Category:</b> Enterprise AI observability + LLM evaluation + ML observability</div></div></li><li><div><div class="para"><b>Core use case:</b> Production monitoring, evals, debugging, governance, and quality tracking</div></div></li><li><div><div class="para"><b>Strength:</b> End-to-end observability across development and production, especially for larger teams and production AI systems</div></div></li><li><div><div class="para"><b>Best fit:</b> Organizations running LLM, agent, ML, or computer vision systems in production</div></div></li><li><div><div class="para"><b>Less lightweight than:</b> AgentOps or Freeplay</div></div></li></ul><div class="para"><b>Example use case:</b> You run a customer-support LLM assistant in production. Arize AX helps monitor answer quality, hallucination risk, latency, cost, drift in user questions, eval scores, and problematic traces. It is more of a platform for serious production AI systems than a small developer tracing SDK.</div><h2 nodeid="e7d9848f-e17d-4228-87d8-3aa8301f43e4" id="freeplay">Freeplay</h2><ul role="list"><li><div><div class="para"><b>TL;DR:</b> Prompt management, experimentation, and evaluation</div></div></li><li><div><div class="para"><b>Official site:</b> <a href="https://freeplay.ai/" rev="en_rl_none" class="en-link">Freeplay</a></div></div></li><li><div><div class="para"><b>Docs:</b> <a href="https://docs.freeplay.ai/" rev="en_rl_none" class="en-link">Freeplay Docs</a>, <a href="https://docs.freeplay.ai/core-concepts/prompt-management/managing-prompts" rev="en_rl_none" class="en-link">Prompt Management</a></div></div></li></ul><div class="para"><b>What it is:</b> Freeplay is centered on prompt engineering, prompt management, testing, and collaborative product iteration. It is positioned to help product managers, designers, domain experts, and developers experiment with, test, evaluate, and deploy LLM-powered features. It includes prompt versioning, automated testing/evaluation, and visibility into responses across environments.</div><div class="para"><b>Classification:</b></div><ul role="list"><li><div><div class="para"><b>Category:</b> Prompt management + LLM evaluation + PromptOps</div></div></li><li><div><div class="para"><b>Core use case:</b> Prompt iteration, versioning, testing, evaluation, and release workflow</div></div></li><li><div><div class="para"><b>Strength:</b> Product/team workflow around LLM feature development</div></div></li><li><div><div class="para"><b>Best fit:</b> Product teams that need a shared workflow for testing and improving prompts before and after launch</div></div></li><li><div><div class="para"><b>Less central:</b> Deep infrastructure-level observability, broad ML observability, or agent fleet monitoring</div></div></li></ul><div class="para"><b>Example use case:</b> You’re building an AI writing assistant and testing 12 versions of a prompt. Freeplay helps compare prompt versions, run evals, manage deployments, and let PMs or domain experts review outputs without needing to live inside code.</div><h2 nodeid="bc80750b-15ef-4f43-a41d-68c9a3ec4c6c" id="practical-classification">Practical Classification</h2><en-table><div class="container"><table width="674px"><tbody><tr><th data-colwidth="[90]"><div class="para">Tool</div></th><th data-colwidth="[165]"><div class="para">Primary category</div></th><th data-colwidth="[224]"><div class="para">Main job</div></th><th data-colwidth="[195]"><div class="para">Best fit</div></th></tr><tr><td data-colwidth="[90]"><div class="para"><a href="https://www.agentops.ai/" rev="en_rl_none" class="en-link">AgentOps</a></div></td><td data-colwidth="[165]"><div class="para">Agent observability</div></td><td data-colwidth="[224]"><div class="para">Trace, debug, evaluate, and monitor AI agent runs</div></td><td data-colwidth="[195]"><div class="para">Agent-heavy apps with tool calls and multi-step reasoning</div></td></tr><tr><td data-colwidth="[90]"><div class="para"><a href="https://arize.com/" rev="en_rl_none" class="en-link">Arize AX</a></div></td><td data-colwidth="[165]"><div class="para">Enterprise AI observability + evaluation</div></td><td data-colwidth="[224]"><div class="para">Monitor, evaluate, and debug production AI systems</div></td><td data-colwidth="[195]"><div class="para">Larger teams running LLM, agent, ML, or CV systems in production</div></td></tr><tr><td data-colwidth="[90]"><div class="para"><a href="https://freeplay.ai/" rev="en_rl_none" class="en-link">Freeplay</a></div></td><td data-colwidth="[165]"><div class="para">Prompt management + LLM evaluation</div></td><td data-colwidth="[224]"><div class="para">Version, test, evaluate, and deploy prompts</div></td><td data-colwidth="[195]"><div class="para">Product teams iterating on LLM-powered features</div></td></tr></tbody></table></div></en-table>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../ai/ai-videos-articles-podcasts.html"><span>Previous</span><strong>AI - Videos, Articles &amp; Podcasts</strong></a>
+          <a class="pager-link" href="../ai/ai-council-tools-and-solutions.html"><span>Next</span><strong>AI Council - Tools and Solutions</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#simple-rule-of-thumb">Simple Rule of Thumb</a></li>
+          <li class="toc-level-2"><a href="#agentops">AgentOps</a></li>
+          <li class="toc-level-2"><a href="#arize-ax">Arize AX</a></li>
+          <li class="toc-level-2"><a href="#freeplay">Freeplay</a></li>
+          <li class="toc-level-2"><a href="#practical-classification">Practical Classification</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>
