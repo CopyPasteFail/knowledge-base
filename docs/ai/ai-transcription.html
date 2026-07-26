@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Transcription · DevBrain</title>
+    <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta name="theme-color" content="#0b1326">
+</head>
+<body class="article-page">
+<!-- generated-by: tools/process_html.py -->
+    <header class="devbrain-header">
+      <a class="brand" href="../index.html" aria-label="DevBrain home">
+        <span class="brand-mark">DB</span>
+        <span>DevBrain</span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main class="docs-layout">
+      <aside class="docs-sidebar" aria-label="Documentation navigation" data-docs-nav data-nav-prefix="../" data-current-section="ai" data-current-output="ai-transcription.html"></aside>
+      <article class="article-shell">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Docs</a>
+          <span>/</span>
+          <a href="index.html">Ai</a>
+        </nav>
+        <header class="article-header">
+          <p class="eyebrow">Ai</p>
+          <h1>AI Transcription</h1>
+        </header>
+        <div class="article-content">
+<meta itemprop="title" content="AI Transcription">
+      
+      
+          <h1 nodeid="45aabec7-c869-4c50-8bba-ab9e2cb954bf">Products</h1><h2 nodeid="e5c1d295-e3fa-40d8-bc0a-fa7d68282570" id="kolwrite">KolWrite</h2><div class="para"><a href="https://www.geektime.co.il/two-childhood-friends-built-this-impressive-transcription-tool/" rev="en_rl_none" class="en-link">KolWrite</a></div><div class="para">What it is: A Hebrew-friendly transcription service for uploaded recordings and direct recording, with speaker separation, searchable transcripts, summaries, and chat over recordings.</div><div class="para">Core strengths:</div><ul role="list"><li><div><div class="para">Supports 90 languages, including Hebrew</div></div></li><li><div><div class="para">Speaker separation and word-level timing</div></div></li><li><div><div class="para">Search, summaries, and recording Q&amp;A</div></div></li></ul><div class="para">Limitations:</div><ul role="list"><li><div><div class="para">The free plan is limited to 30 minutes of transcription per month.</div></div></li><li><div><div class="para">The product is still maturing, so occasional bugs are possible.</div></div></li></ul><h2 nodeid="db3238c0-c90f-41f5-8a25-d044ae37665d" id="ivritai">Ivrit.ai</h2><div class="para"><a href="https://www.geektime.co.il/tag/ivrit-ai/" rev="en_rl_none" class="en-link">Ivrit.ai</a></div><div class="para">What it is: An open-source Hebrew transcription model and service based on Whisper, with a free web interface and API access.</div><div class="para">Core strengths:</div><ul role="list"><li><div><div class="para">Hebrew-focused open-source model</div></div></li><li><div><div class="para">Free web access and API availability</div></div></li><li><div><div class="para">Can power local tools such as Vibe on Windows and macOS</div></div></li></ul><div class="para">Limitations:</div><ul role="list"><li><div><div class="para">More basic features and, in some comparisons, lower transcription quality than KolWrite.</div></div></li></ul><h2 nodeid="859dfe93-711d-42d4-829b-71682d0e3b28" id="wispr-flow">Wispr Flow</h2><div class="para"><a href="https://wisprflow.ai/" rev="en_rl_none" class="en-link">Wispr Flow</a></div><div class="para">What it is: A commercial dictation application that turns speech into cleaned-up text in the active application.</div><div class="para">Core strengths:</div><ul role="list"><li><div><div class="para">Low-friction dictation and contextual formatting</div></div></li><li><div><div class="para">Cross-device convenience</div></div></li></ul><div class="para">Limitations:</div><ul role="list"><li><div><div class="para">Transcription is cloud processed; privacy settings can limit stored history but do not make the service fully local.</div></div></li></ul><h2 nodeid="0f1fa1a8-04a1-489c-ab78-20b63b851828" id="voicebox">Voicebox</h2><div class="para"><a href="https://github.com/jamiepine/voicebox" rev="en_rl_none" class="en-link">Voicebox</a></div><div class="para">What it is: An open-source local voice workstation with Whisper transcription, text-to-speech, voice cloning, and API-oriented workflows.</div><div class="para">Core strengths:</div><ul role="list"><li><div><div class="para">Fully local transcription for privacy-sensitive work</div></div></li><li><div><div class="para">Also supports speech generation and voice cloning</div></div></li><li><div><div class="para">Useful as a local API or for agents that need spoken output</div></div></li></ul><div class="para">Typical use cases:</div><ul role="list"><li><div><div class="para">Local dictation without a recurring cloud-service dependency</div></div></li><li><div><div class="para">Voiceovers, cloned voices, and spoken agent responses</div></div></li></ul><div class="para">Limitations:</div><ul role="list"><li><div><div class="para">More setup and operational responsibility than Wispr Flow.</div></div></li><li><div><div class="para">Wispr Flow may still offer better cleanup and usability for everyday dictation.</div></div></li></ul><div class="para"><br></div>
+        </div>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a class="pager-link" href="../ai/ai-safety-sycophantic-misaligned-and-adversarial.html"><span>Previous</span><strong>AI Safety - Sycophantic, Misaligned, and Adversarial</strong></a>
+          <a class="pager-link" href="../ai/ai-video-image-generators.html"><span>Next</span><strong>AI Video &amp; Image Generators</strong></a>
+        </nav>
+      </article>
+      <aside class="toc-panel" aria-label="On this page">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li class="toc-level-2"><a href="#kolwrite">KolWrite</a></li>
+          <li class="toc-level-2"><a href="#ivritai">Ivrit.ai</a></li>
+          <li class="toc-level-2"><a href="#wispr-flow">Wispr Flow</a></li>
+          <li class="toc-level-2"><a href="#voicebox">Voicebox</a></li>
+        </ol>
+      </aside>
+    </main>
+    <script src="../assets/site.js" defer></script>
+</body>
+</html>

@@ -35,6 +35,11 @@ window.DEVBRAIN_NAVIGATION = {
           "output": "ai-safety-sycophantic-misaligned-and-adversarial.html"
         },
         {
+          "title": "AI Transcription",
+          "href": "ai/ai-transcription.html",
+          "output": "ai-transcription.html"
+        },
+        {
           "title": "AI Video & Image Generators",
           "href": "ai/ai-video-image-generators.html",
           "output": "ai-video-image-generators.html"
